@@ -1,3 +1,46 @@
+<?php
+require_once('connection.php');
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Sprawdzenie czy dane zostały przesłane
+    if (isset($_POST['login']) && isset($_POST['Haslo'])) {
+        // Odbierz dane z formularza
+        $login = $_POST['login'];
+        $Haslo = $_POST['Haslo'];
+
+        // Zabezpieczenie przed SQL Injection
+        $login = mysqli_real_escape_string($conn, $login);
+        $Haslo = mysqli_real_escape_string($conn, $Haslo);
+
+        // Zapytanie SQL do sprawdzenia poprawności logowania
+        $query = "SELECT * FROM users WHERE login='$login'";
+        $result = mysqli_query($conn, $query);
+
+        if ($result) {
+            // Sprawdź czy użytkownik istnieje w bazie danych
+            if (mysqli_num_rows($result) == 1) {
+                $row = mysqli_fetch_assoc($result);
+                // Sprawdź czy hasło jest poprawne
+                if (password_verify($Haslo, $row['Haslo'])) {
+                    // Użytkownik zalogowany poprawnie, przekieruj na stronę intro.php
+                    header("Location: intro.php");
+                    exit();
+                } else {
+                    echo "Niepoprawne hasło!";
+                }
+            } else {
+                echo "Użytkownik o podanym loginie nie istnieje!";
+            }
+        } else {
+            echo "Błąd zapytania: " . mysqli_error($conn);
+        }
+    } else {
+        // Nie wszystkie pola zostały przesłane
+        echo "Wszystkie pola są wymagane!";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,6 +51,7 @@
     <link rel="stylesheet" href="style2.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="dist/prod.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Strona Główna</title>
     <script type="module" src="main.js" defer></script>
@@ -47,7 +91,7 @@
         <h2>Zaloguj się</h2>
         <form action="login.php" method="post">
             <input type="text" name="login" placeholder="Login" required />
-            <input type="password" name="password" placeholder="Hasło" required />
+            <input type="password" name="Haslo" placeholder="Hasło" required />
             <button type="submit">Zaloguj się</button>
         </form>
     </div>

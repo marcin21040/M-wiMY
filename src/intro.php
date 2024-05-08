@@ -1,3 +1,6 @@
+<?php
+require_once('connection.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Strona Główna</title>
     <script type="module" src="main.js" defer></script>
-    <link rel="stylesheet" href="/dist/prod.css">
+    <link rel="stylesheet" href="dist/prod.css">
 </head>
 
 <body>
@@ -85,19 +88,19 @@
 
     <div class="language_wrapper intro">
         <a class="language" href="">
-            <img src="/images/germany-flag.png">
+            <img src="dist/images/germany-flag.png">
             <p>Niemiecki</p>
         </a>
         <a class="language">
-            <img src="/images/uk-flag.png">
+            <img src="dist/images/uk-flag.png">
             <p>Angielski</p>
         </a>
         <div class="language">
-            <img src="/images/spain-flag.png">
+            <img src="dist/images/spain-flag.png">
             <p>Hiszpański</p>
         </div>
         <div class="language">
-            <img src="/images/france-flag.jpg">
+            <img src="dist/images/france-flag.jpg">
             <p>Francuzki</p>
         </div>
     </div>

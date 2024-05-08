@@ -1,3 +1,44 @@
+<?php
+require_once('connection.php');
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+   // Sprawdzenie czy dane zostały przesłane
+   if (isset($_POST['login']) && isset($_POST['Haslo']) && isset($_POST['email'])) {
+       // Odbierz dane z formularza
+       $login = $_POST['login'];
+       $Haslo = $_POST['Haslo']; // Poprawna nazwa zmiennej dla hasła
+       $email = $_POST['email'];
+
+       // Zabezpieczenie przed SQL Injection
+       $login = mysqli_real_escape_string($conn, $login);
+       $Haslo = mysqli_real_escape_string($conn, $Haslo); // Poprawna nazwa zmiennej dla hasła
+       $email = mysqli_real_escape_string($conn, $email);
+
+       // Haszowanie hasła
+       $hashed_password = password_hash($Haslo, PASSWORD_DEFAULT);
+
+       // Zapytanie SQL do dodania użytkownika
+       $query = "INSERT INTO users (login, Haslo, email) VALUES ('$login', '$hashed_password', '$email')";
+
+       // Wykonanie zapytania
+       $result = mysqli_query($conn, $query);
+
+       if ($result) {
+           // Użytkownik dodany pomyślnie, możesz przekierować gdziekolwiek chcesz
+           header("Location: login.php");
+           exit();
+       } else {
+           // Błąd dodawania użytkownika
+           echo "Błąd podczas rejestracji użytkownika: " . mysqli_error($conn);
+       }
+   } else {
+       // Nie wszystkie pola zostały przesłane
+       echo "Wszystkie pola są wymagane!";
+   }
+}
+?>
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,6 +50,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dist/prod.css">
   <title>Strona Główna</title>
   <script type="module" src="main.js" defer></script>
 </head>
@@ -52,7 +94,7 @@
   <h2>Rejestracja</h2>
   <form action="register.php" method="post">
     <input type="text" name="login" placeholder="Login" required />
-    <input type="password" name="password" placeholder="Hasło" required />
+    <input type="password" name="Haslo" placeholder="Hasło" required />
     <input type="email" name="email" placeholder="Email" required />
     <button type="submit">Zarejestruj się</button>
   </form>
