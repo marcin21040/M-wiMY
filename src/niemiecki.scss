@@ -1,0 +1,34 @@
+.lang-niemiecki {
+    min-height: calc(100vh);
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+
+    .fiszki-quizy {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .kategorie-trybow {
+        .kategorie-fiszek__wrapper, .kategorie-quizow__wrapper {
+            // display: flex;
+            display: none;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+
+            .kategorie-fiszek__item {
+                border-radius: 20px;
+                border: #fff solid 1px;
+                padding: 20px 5px;
+                width: 150px;
+                margin: auto;
+                text-align: center;
+                color: #637498;
+                background-color: rgba(255, 255, 255, .2);
+            }
+        }
+    }
+}
