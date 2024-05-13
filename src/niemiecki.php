@@ -75,12 +75,12 @@ require_once('connection.php');
                 <div class="kategorie-fiszek">
                     <!-- <h2 class="mainHeading__title">Kategorie fiszek</h2> -->
                     <div class="kategorie-fiszek__wrapper">
-                        <a href="fiszki.php" class="kategorie-fiszek__item">dupa</a>
-                        <a href="fiszki.php" class="kategorie-fiszek__item">dupa</a>
-                        <a href="fiszki.php" class="kategorie-fiszek__item">szerszen</a>
-                        <a href="fiszki.php" class="kategorie-fiszek__item">koton</a>
-                        <a href="fiszki.php" class="kategorie-fiszek__item">dupa</a>
-                        <a href="fiszki.php" class="kategorie-fiszek__item">dupa</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Podstawowe zwroty</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Kolory</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Liczby</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Zwierzęta</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Owoce</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Warzywa</a>
                         <a href="fiszki.php" class="kategorie-fiszek__item">Czas</a>
                         <a href="fiszki.php" class="kategorie-fiszek__item">Pogoda</a>
                         <a href="fiszki.php" class="kategorie-fiszek__item">Praca</a>
