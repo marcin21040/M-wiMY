@@ -158,7 +158,8 @@
  }
  
  .mainNav {
-    width: 100%;
+    width: 95%;
+    max-width: 1640px;
     height: 80px;
     position: fixed;
     z-index: 1;
@@ -169,6 +170,10 @@
     text-transform: uppercase;
     padding: 0 40px;
     background-color: #fff;
+    top: 40px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    border-radius: 15px;
     @include sm {
        padding: 0 20px;
     }
