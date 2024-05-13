@@ -1,6 +1,17 @@
 <?php
+session_start();
+
+// Sprawdź czy użytkownik jest zalogowany
+if (!isset($_SESSION['login'])) {
+    // Jeśli niezalogowany, przekieruj go do strony logowania
+    header("Location: login.php");
+    exit();
+}
+
+// Jeśli użytkownik jest zalogowany, możemy wykonać inne operacje, np. pobieranie danych użytkownika z bazy danych itp.
 require_once('connection.php');
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -22,9 +33,7 @@ require_once('connection.php');
     <nav class="mainNav">
         <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
         <div class="mainNav__links">
-            <a href="" class="mainNav__link">Zacznij naukę</a>
-            <a href="" class="mainNav__link">O nas</a>
-            <a href="" class="mainNav__link">Kontakt</a>
+            <a href="wyloguj.php" class="mainNav__link">Wyloguj się</a>
         </div>
         <div class="mainNav__icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -44,36 +53,27 @@ require_once('connection.php');
     
     <header class="mainHeading">
         <div class="mainHeading__content">
-
-        
-
         </div>
     </header>
 
-    <script>
-        function redirectToRegister() {
-            window.location.href = "register.php";
-        }
-    </script>
-
-<div class="language_wrapper intro">
-    <a class="language" href="niemiecki.php">
-        <img src="dist/images/germany-flag.png">
-        <p>Niemiecki</p>
-    </a>
-    <a class="language" href="angielski.php">
-        <img src="dist/images/uk-flag.png">
-        <p>Angielski</p>
-    </a>
-    <a class="language" href="hiszpański.php">
-        <img src="dist/images/spain-flag.png">
-        <p>Hiszpański</p>
-    </a>
-    <a class="language" href="francuski.php">
-        <img src="dist/images/france-flag.jpg">
-        <p>Francuski</p>
-    </a>
-</div>
+    <div class="language_wrapper intro">
+        <a class="language" href="niemiecki.php">
+            <img src="dist/images/germany-flag.png">
+            <p>Niemiecki</p>
+        </a>
+        <a class="language" href="angielski.php">
+            <img src="dist/images/uk-flag.png">
+            <p>Angielski</p>
+        </a>
+        <a class="language" href="hiszpański.php">
+            <img src="dist/images/spain-flag.png">
+            <p>Hiszpański</p>
+        </a>
+        <a class="language" href="francuski.php">
+            <img src="dist/images/france-flag.jpg">
+            <p>Francuski</p>
+        </a>
+    </div>
 
 
 

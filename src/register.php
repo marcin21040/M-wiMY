@@ -14,11 +14,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
        $Haslo = mysqli_real_escape_string($conn, $Haslo); // Poprawna nazwa zmiennej dla hasła
        $email = mysqli_real_escape_string($conn, $email);
 
-       // Haszowanie hasła
-       $hashed_password = password_hash($Haslo, PASSWORD_DEFAULT);
-
        // Zapytanie SQL do dodania użytkownika
-       $query = "INSERT INTO users (login, Haslo, email) VALUES ('$login', '$hashed_password', '$email')";
+       $query = "INSERT INTO users (login, Haslo, email) VALUES ('$login', '$Haslo', '$email')";
 
        // Wykonanie zapytania
        $result = mysqli_query($conn, $query);

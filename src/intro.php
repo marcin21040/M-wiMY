@@ -14,32 +14,11 @@ require_once('connection.php');
     <title>Strona Główna</title>
     <script type="module" src="main.js" defer></script>
     <link rel="stylesheet" href="dist/prod.css">
+    
 </head>
 
 <body>
-    <!-- <header class="header_wrapper">
-    <a>
-  	<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" fill="#fff" height="30" viewBox="0 0 24 24">
-<path d="M 12 2.0996094 L 1 12 L 4 12 L 4 21 L 11 21 L 11 15 L 13 15 L 13 21 L 20 21 L 20 12 L 23 12 L 12 2.0996094 z M 12 4.7910156 L 18 10.191406 L 18 11 L 18 19 L 15 19 L 15 13 L 9 13 L 9 19 L 6 19 L 6 10.191406 L 12 4.7910156 z"></path>
-</svg>
-    </a>
-    <h1 class="header__logo">MówiMY</h1>
-    <a>
-    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#fff" class="bi bi-person" viewBox="0 0 16 16">
-  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
-</svg>
-    </a>
-  </header>
-  
-  <div class="intro__wrapper">
-    <div class="container">
-        <img src="/images/translation_intro.webp" alt="">
-        <div class="intro__text">
-            <h1>Witaj na stronie MówiMY</h1>
-            <p>Wybierz język, który chcesz poznać</p>
-        </div>
-    </div>
-  </div> -->
+
 
     <nav class="mainNav">
         <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>

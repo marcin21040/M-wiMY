@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once('connection.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -21,9 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (mysqli_num_rows($result) == 1) {
                 $row = mysqli_fetch_assoc($result);
                 // Sprawdź czy hasło jest poprawne
-                if (password_verify($Haslo, $row['Haslo'])) {
-                    // Użytkownik zalogowany poprawnie, przekieruj na stronę intro.php
-                    header("Location: intro.php");
+                if ($Haslo == $row['Haslo']) { // Sprawdzenie hasła bez hashowania
+                    $_SESSION['login'] = $login;
+                    header("Location: zalogowany.php");
                     exit();
                 } else {
                     echo "Niepoprawne hasło!";
@@ -55,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Strona Główna</title>
     <script type="module" src="main.js" defer></script>
-    </head>
+</head>
 
 <body>
 
@@ -66,7 +67,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="" class="mainNav__link">Zacznij naukę</a>
             <a href="" class="mainNav__link">O nas</a>
             <a href="" class="mainNav__link">Kontakt</a>
-            <a href="login.php" class="mainNav__link">Zaloguj się</a>
+            <?php
+            // Sprawdź czy użytkownik jest zalogowany
+            if (isset($_SESSION['login'])) {
+                // Jeśli zalogowany, wyświetl link do wylogowania
+                echo '<a href="wyloguj.php" class="mainNav__link">Wyloguj się</a>';
+            } else {
+                // Jeśli niezalogowany, wyświetl link do logowania
+                echo '<a href="login.php" class="mainNav__link">Zaloguj się</a>';
+            }
+            ?>
         </div>
         <div class="mainNav__icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

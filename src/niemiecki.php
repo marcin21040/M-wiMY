@@ -14,6 +14,7 @@ require_once('connection.php');
     <title>Strona Główna</title>
     <script type="module" src="main.js" defer></script>
     <link rel="stylesheet" href="dist/prod.css">
+    <link rel="stylesheet" href="niemiecki.scss" />
 </head>
 
 <body>
@@ -43,9 +44,83 @@ require_once('connection.php');
 
     
     <header class="mainHeading">
-        <div class="mainHeading__content">
+        <div class="mainHeading__content lang-niemiecki">
 
-        
+            <h1>🇩🇪 Niemiecki 🇩🇪</h1>
+
+            <div class="fiszki-quizy">
+
+                <article class="mainHeading__text">
+                    <p class="mainHeading__preTitle">Mówimy</p>
+                    <h2 class="mainHeading__title">Fiszki</h2>
+                    <p class="mainHeading__description">
+                       Zacznij uczyć się przy pomocy fiszek. Wybierz kategorię i zacznij naukę.
+                    </p>
+                    <button class="cta" id="guzik-fiszki" onclick="myFunction()">Pokaż fiszki</button>
+                 </article>
+    
+                 <article class="mainHeading__text">
+                    <p class="mainHeading__preTitle">Mówimy</p>
+                    <h2 class="mainHeading__title">Quizy</h2>
+                    <p class="mainHeading__description">
+                        Sprawdź swoją wiedzę przy pomocy quizów. Wybierz kategorię i zacznij quiz.
+                    </p>
+                    <button class="cta" id="guzik-quizy" onclick="myFunction2()">Zacznij Quiz</button>
+                 </article>
+
+            </div>
+
+            <div class="kategorie-trybow">
+                
+                <div class="kategorie-fiszek">
+                    <!-- <h2 class="mainHeading__title">Kategorie fiszek</h2> -->
+                    <div class="kategorie-fiszek__wrapper">
+                        <a href="fiszki.php" class="kategorie-fiszek__item">dupa</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">dupa</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">szerszen</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">koton</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">dupa</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">dupa</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Czas</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Pogoda</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Praca</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Szkoła</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Sport</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Zdrowie</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Jedzenie</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Dom</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Rodzina</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Miasto</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Podróżowanie</a>
+                        <a href="fiszki.php" class="kategorie-fiszek__item">Kultura</a>
+                    </div>
+                </div>
+
+                <div class="kategorie-quizow">
+                    <div class="kategorie-quizow__wrapper">
+                        <a href="quizy.php" class="kategorie-fiszek__item">Podstawowe zwroty</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Kolory</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Liczby</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Zwierzęta</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Owoce</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Warzywa</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Czas</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Pogoda</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Praca</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Szkoła</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Sport</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Zdrowie</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Jedzenie</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Dom</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Rodzina</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Miasto</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Podróżowanie</a>
+                        <a href="quizy.php" class="kategorie-fiszek__item">Kultura</a>
+                    </div>
+                </div>
+
+            </div>
+            
 
         </div>
     </header>
@@ -55,12 +130,17 @@ require_once('connection.php');
             window.location.href = "register.php";
         }
     </script>
+    <script>
+        function myFunction() {
+            document.querySelector(".kategorie-quizow__wrapper").style.display = 'none';
+            document.querySelector(".kategorie-fiszek__wrapper").style.display = 'flex';
+        }
+        function myFunction2() {
+            document.querySelector(".kategorie-fiszek__wrapper").style.display = 'none';
+            document.querySelector(".kategorie-quizow__wrapper").style.display = 'flex';
+        }
+    </script>
 
-
-
-
-
-    <script src="script.js"></script>
 </body>
 
 </html>
