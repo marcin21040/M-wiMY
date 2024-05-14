@@ -3,7 +3,7 @@ session_start();
 require_once('connection.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sprawdzenie czy dane zostały przesłane
+    // Sprawdzenie, czy dane zostały przesłane
     if (isset($_POST['login']) && isset($_POST['Haslo'])) {
         // Odbierz dane z formularza
         $login = $_POST['login'];
@@ -18,13 +18,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $result = mysqli_query($conn, $query);
 
         if ($result) {
-            // Sprawdź czy użytkownik istnieje w bazie danych
+            // Sprawdź, czy użytkownik istnieje w bazie danych
             if (mysqli_num_rows($result) == 1) {
                 $row = mysqli_fetch_assoc($result);
-                // Sprawdź czy hasło jest poprawne
-                if ($Haslo == $row['Haslo']) { // Sprawdzenie hasła bez hashowania
+                // Sprawdź, czy hasło jest poprawne
+                if (password_verify($Haslo, $row['Haslo'])) { // Sprawdzenie hasła z hashowaniem
                     $_SESSION['login'] = $login;
-                    header("Location: zalogowany.php");
+                    $_SESSION['user_id'] = $row['id']; // Ustawienie user_id w sesji
+
+                    // Sprawdź, czy użytkownik jest administratorem
+                    if ($row['is_admin']) {
+                        header("Location: admin.php");
+                    } else {
+                        header("Location: zalogowany.php");
+                    }
                     exit();
                 } else {
                     echo "Niepoprawne hasło!";
@@ -44,7 +51,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -57,10 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Strona Główna</title>
     <script type="module" src="main.js" defer></script>
 </head>
-
 <body>
-
-
     <nav class="mainNav">
         <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
         <div class="mainNav__links">
@@ -68,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="" class="mainNav__link">O nas</a>
             <a href="" class="mainNav__link">Kontakt</a>
             <?php
-            // Sprawdź czy użytkownik jest zalogowany
+            // Sprawdź, czy użytkownik jest zalogowany
             if (isset($_SESSION['login'])) {
                 // Jeśli zalogowany, wyświetl link do wylogowania
                 echo '<a href="wyloguj.php" class="mainNav__link">Wyloguj się</a>';
@@ -93,8 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </nav>
     <header class="mainHeading">
-        <div class="mainHeading__content">
-        </div>
+        <div class="mainHeading__content"></div>
     </header>
 
     <div class="login-form">
@@ -112,8 +114,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </script>
 
-
     <script src="script.js"></script>
 </body>
-
 </html>

@@ -29,10 +29,10 @@ require_once('connection.php');
 
 <body>
 
-
     <nav class="mainNav">
         <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
         <div class="mainNav__links">
+            <a href="user_history.php" class="mainNav__link">Historia</a>
             <a href="wyloguj.php" class="mainNav__link">Wyloguj się</a>
         </div>
         <div class="mainNav__icon">
@@ -50,32 +50,29 @@ require_once('connection.php');
         </div>
     </nav>
 
-    
     <header class="mainHeading">
         <div class="mainHeading__content">
         </div>
     </header>
 
     <div class="language_wrapper intro">
-        <a class="language" href="niemiecki.php">
+        <a class="language" href="set_language.php?language=niemiecki">
             <img src="dist/images/germany-flag.png">
             <p>Niemiecki</p>
         </a>
-        <a class="language" href="angielski.php">
+        <a class="language" href="set_language.php?language=angielski">
             <img src="dist/images/uk-flag.png">
             <p>Angielski</p>
         </a>
-        <a class="language" href="hiszpański.php">
+        <a class="language" href="set_language.php?language=hiszpanski">
             <img src="dist/images/spain-flag.png">
             <p>Hiszpański</p>
         </a>
-        <a class="language" href="francuski.php">
+        <a class="language" href="set_language.php?language=francuski">
             <img src="dist/images/france-flag.jpg">
             <p>Francuski</p>
         </a>
     </div>
-
-
 
     <script src="script.js"></script>
 </body>

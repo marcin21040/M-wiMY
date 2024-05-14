@@ -4,11 +4,14 @@ require_once('connection.php');
 
 // Sprawdź, czy użytkownik jest zalogowany
 if (!isset($_SESSION['login'])) {
-    // Jeśli niezalogowany, przekieruj go do strony logowania
     header("Location: login.php");
     exit();
 }
 
+// Pobierz język z sesji
+$language = $_SESSION['language'] ?? '';
+
+// Funkcja do pobierania słów z kategorii
 function getWordsByCategory($categoryId, $type) {
     global $conn;
     $stmt = $conn->prepare(
@@ -26,16 +29,50 @@ function getWordsByCategory($categoryId, $type) {
     return $words;
 }
 
-if (isset($_GET['category_id']) && isset($_GET['type'])) {
+// Funkcja do pobierania słów po ID
+function getWordsByIds($ids) {
+    global $conn;
+    $ids = implode(',', array_map('intval', $ids)); // Zabezpieczenie przed SQL injection
+    $query = "SELECT id, word, translation_pl, translation_de, translation_en, translation_es, translation_fr FROM words WHERE id IN ($ids)";
+    $result = mysqli_query($conn, $query);
+    $words = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    return $words;
+}
+
+// Pobierz słowa w zależności od parametrów URL
+$words = [];
+if (isset($_GET['incorrect_ids'])) {
+    $incorrectIds = unserialize(urldecode($_GET['incorrect_ids']));
+    $words = getWordsByIds($incorrectIds);
+} elseif (isset($_GET['category_id']) && isset($_GET['type'])) {
     $categoryId = $_GET['category_id'];
     $type = $_GET['type'];
     $words = getWordsByCategory($categoryId, $type);
-
     // Losuj 10 słówek
     if (count($words) > 10) {
         $random_keys = array_rand($words, 10);
         $words = array_intersect_key($words, array_flip($random_keys));
     }
+}
+
+// Ustal odpowiednią kolumnę tłumaczeń na podstawie wybranego języka
+$translationColumn = '';
+switch ($language) {
+    case 'angielski':
+        $translationColumn = 'translation_en';
+        break;
+    case 'niemiecki':
+        $translationColumn = 'translation_de';
+        break;
+    case 'hiszpanski':
+        $translationColumn = 'translation_es';
+        break;
+    case 'francuski':
+        $translationColumn = 'translation_fr';
+        break;
+    default:
+        $translationColumn = 'word'; // Domyślna kolumna, jeśli język nie jest ustawiony prawidłowo
+        break;
 }
 ?>
 
@@ -48,12 +85,11 @@ if (isset($_GET['category_id']) && isset($_GET['type'])) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <title>Słówka</title>
+    <title>Strona Główna</title>
     <script type="module" src="main.js" defer></script>
     <link rel="stylesheet" href="dist/prod.css">
 </head>
 <body>
-
 <nav class="mainNav">
     <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
     <div class="mainNav__links">
@@ -75,20 +111,20 @@ if (isset($_GET['category_id']) && isset($_GET['type'])) {
 </nav>
 <header class="mainHeading">
     <div class="mainHeading__content">
-        <h1>Quiz słówek</h1>
+        <h1>Quiz słówek: <?php echo htmlspecialchars($language); ?></h1>
     </div>
 </header>
 
-<?php if (isset($words) && !empty($words)): ?>
-    <form method="post" action="submit_quiz.php" class="quiz-form">
+<?php if (!empty($words)): ?>
+    <form method="post" action="submit_quiz.php?category_id=<?php echo isset($categoryId) ? $categoryId : ''; ?>" class="quiz-form">
         <?php foreach ($words as $index => $word): ?>
             <div class="word-item">
                 <p>Oryginał: <?php echo htmlspecialchars($word['word']); ?></p>
-                <label for="word-<?php echo $word['id']; ?>-de">Niemiecki:</label>
-                <input type="text" id="word-<?php echo $word['id']; ?>-de" name="answers[<?php echo $index; ?>][de]" required>
+                <label for="word-<?php echo $word['id']; ?>-translation"><?php echo ucfirst($language); ?>:</label>
+                <input type="text" id="word-<?php echo $word['id']; ?>-translation" name="answers[<?php echo $index; ?>][translation]" required>
                 <input type="hidden" name="questions[<?php echo $index; ?>][id]" value="<?php echo $word['id']; ?>">
                 <input type="hidden" name="questions[<?php echo $index; ?>][word]" value="<?php echo $word['word']; ?>">
-                <input type="hidden" name="questions[<?php echo $index; ?>][de]" value="<?php echo $word['translation_de']; ?>">
+                <input type="hidden" name="questions[<?php echo $index; ?>][translation]" value="<?php echo $word[$translationColumn]; ?>">
             </div>
         <?php endforeach; ?>
         <button type="submit">Zakończ quiz</button>

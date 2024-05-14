@@ -4,7 +4,6 @@ require_once('connection.php');
 
 // Sprawdź, czy użytkownik jest zalogowany
 if (!isset($_SESSION['login'])) {
-    // Jeśli niezalogowany, przekieruj go do strony logowania
     header("Location: login.php");
     exit();
 }
@@ -16,14 +15,26 @@ while ($row = mysqli_fetch_assoc($result)) {
     $categories[] = $row;
 }
 
-// Sprawdź, czy formularz został przesłany
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sprawdź, czy wszystkie wymagane pola zostały wypełnione
+// Pobierz wszystkie słówka
+$words = [];
+$result = mysqli_query($conn, "SELECT * FROM words");
+while ($row = mysqli_fetch_assoc($result)) {
+    $words[] = $row;
+}
+
+// Pobierz wszystkich użytkowników
+$users = [];
+$result = mysqli_query($conn, "SELECT id, login, email, is_admin FROM users");
+while ($row = mysqli_fetch_assoc($result)) {
+    $users[] = $row;
+}
+
+// Dodawanie słówek
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_word'])) {
     if (!empty($_POST['word']) && !empty($_POST['translation_pl']) && !empty($_POST['translation_de']) && 
         !empty($_POST['translation_en']) && !empty($_POST['translation_es']) && !empty($_POST['translation_fr']) &&
         !empty($_POST['category_id'])) {
 
-        // Pobierz dane z formularza
         $word = $_POST['word'];
         $translation_pl = $_POST['translation_pl'];
         $translation_de = $_POST['translation_de'];
@@ -32,7 +43,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $translation_fr = $_POST['translation_fr'];
         $category_id = $_POST['category_id'];
 
-        // Sprawdź, czy słowo już istnieje
         $query = "SELECT id FROM words WHERE word = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("s", $word);
@@ -42,7 +52,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->num_rows > 0) {
             echo "Słówko już istnieje w bazie danych.";
         } else {
-            // Dodaj nowe słówko do tabeli words
             $query = "INSERT INTO words (word, translation_pl, translation_de, translation_en, translation_es, translation_fr) 
                       VALUES (?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($query);
@@ -51,13 +60,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($stmt->execute()) {
                 $word_id = $stmt->insert_id;
                 
-                // Przypisz słowo do wybranej kategorii
                 $query = "INSERT INTO word_categories (word_id, category_id) VALUES (?, ?)";
                 $stmt = $conn->prepare($query);
                 $stmt->bind_param("ii", $word_id, $category_id);
                 
                 if ($stmt->execute()) {
                     echo "Słówko zostało dodane pomyślnie.";
+                    // Odśwież stronę po dodaniu słowa
+                    header("Location: admin.php");
+                    exit();
                 } else {
                     echo "Wystąpił błąd podczas przypisywania słówka do kategorii: " . $stmt->error;
                 }
@@ -67,6 +78,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } else {
         echo "Wypełnij wszystkie pola formularza.";
+    }
+}
+
+// Usuwanie słówek
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_word'])) {
+    $word_id = $_POST['word_id'];
+    $query = "DELETE FROM words WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $word_id);
+    if ($stmt->execute()) {
+        echo "Słówko zostało usunięte pomyślnie.";
+        // Odśwież stronę po usunięciu słowa
+        header("Location: admin.php");
+        exit();
+    } else {
+        echo "Wystąpił błąd podczas usuwania słówka: " . $stmt->error;
+    }
+}
+
+// Usuwanie użytkowników
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_user'])) {
+    $user_id = $_POST['user_id'];
+    $query = "DELETE FROM users WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    if ($stmt->execute()) {
+        echo "Użytkownik został usunięty pomyślnie.";
+        // Odśwież stronę po usunięciu użytkownika
+        header("Location: admin.php");
+        exit();
+    } else {
+        echo "Wystąpił błąd podczas usuwania użytkownika: " . $stmt->error;
+    }
+}
+
+// Nadanie uprawnień administratora
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['make_admin'])) {
+    $user_id = $_POST['user_id'];
+    $query = "UPDATE users SET is_admin = 1 WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    if ($stmt->execute()) {
+        echo "Użytkownik został mianowany administratorem.";
+        // Odśwież stronę po zmianie statusu użytkownika
+        header("Location: admin.php");
+        exit();
+    } else {
+        echo "Wystąpił błąd podczas mianowania użytkownika administratorem: " . $stmt->error;
     }
 }
 ?>
@@ -91,6 +150,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="mainHeading__content">
             <h1>Dodaj nowe słówko</h1>
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                <input type="hidden" name="add_word" value="1">
                 <label for="word">Słowo:</label>
                 <input type="text" id="word" name="word" required><br><br>
                 <label for="translation_pl">Tłumaczenie (PL):</label>
@@ -113,5 +173,72 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
         </div>
     </header>
+
+    <div class="words-list">
+        <h2>Lista słów</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Słowo</th>
+                    <th>PL</th>
+                    <th>DE</th>
+                    <th>EN</th>
+                    <th>ES</th>
+                    <th>FR</th>
+                    <th>Akcja</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($words as $word): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($word['word']); ?></td>
+                        <td><?php echo htmlspecialchars($word['translation_pl']); ?></td>
+                        <td><?php echo htmlspecialchars($word['translation_de']); ?></td>
+                        <td><?php echo htmlspecialchars($word['translation_en']); ?></td>
+                        <td><?php echo htmlspecialchars($word['translation_es']); ?></td>
+                        <td><?php echo htmlspecialchars($word['translation_fr']); ?></td>
+                        <td>
+                            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                                <input type="hidden" name="word_id" value="<?php echo $word['id']; ?>">
+                                <button type="submit" name="delete_word">Usuń</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="users-list">
+        <h2>Lista użytkowników</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Login</th>
+                    <th>Email</th>
+                    <th>Admin</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($users as $user): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($user['login']); ?></td>
+                        <td><?php echo htmlspecialchars($user['email']); ?></td>
+                        <td><?php echo $user['is_admin'] ? 'Tak' : 'Nie'; ?></td>
+                        <td>
+                            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                <button type="submit" name="delete_user">Usuń</button>
+                                <?php if (!$user['is_admin']): ?>
+                                    <button type="submit" name="make_admin">Nadaj uprawnienia admina</button>
+                                <?php endif; ?>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>

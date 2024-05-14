@@ -2,38 +2,40 @@
 require_once('connection.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-   // Sprawdzenie czy dane zostały przesłane
-   if (isset($_POST['login']) && isset($_POST['Haslo']) && isset($_POST['email'])) {
-       // Odbierz dane z formularza
-       $login = $_POST['login'];
-       $Haslo = $_POST['Haslo']; // Poprawna nazwa zmiennej dla hasła
-       $email = $_POST['email'];
+    // Sprawdzenie, czy dane zostały przesłane
+    if (isset($_POST['login']) && isset($_POST['Haslo']) && isset($_POST['email'])) {
+        // Odbierz dane z formularza
+        $login = $_POST['login'];
+        $Haslo = $_POST['Haslo']; // Poprawna nazwa zmiennej dla hasła
+        $email = $_POST['email'];
 
-       // Zabezpieczenie przed SQL Injection
-       $login = mysqli_real_escape_string($conn, $login);
-       $Haslo = mysqli_real_escape_string($conn, $Haslo); // Poprawna nazwa zmiennej dla hasła
-       $email = mysqli_real_escape_string($conn, $email);
+        // Zabezpieczenie przed SQL Injection
+        $login = mysqli_real_escape_string($conn, $login);
+        $Haslo = mysqli_real_escape_string($conn, $Haslo); // Poprawna nazwa zmiennej dla hasła
+        $email = mysqli_real_escape_string($conn, $email);
 
-       // Zapytanie SQL do dodania użytkownika
-       $query = "INSERT INTO users (login, Haslo, email) VALUES ('$login', '$Haslo', '$email')";
+        // Hashowanie hasła
+        $hashedPassword = password_hash($Haslo, PASSWORD_BCRYPT);
 
-       // Wykonanie zapytania
-       $result = mysqli_query($conn, $query);
+        // Zapytanie SQL do dodania użytkownika
+        $query = "INSERT INTO users (login, Haslo, email) VALUES ('$login', '$hashedPassword', '$email')";
 
-       if ($result) {
-           // Użytkownik dodany pomyślnie, możesz przekierować gdziekolwiek chcesz
-           header("Location: login.php");
-           exit();
-       } else {
-           // Błąd dodawania użytkownika
-           echo "Błąd podczas rejestracji użytkownika: " . mysqli_error($conn);
-       }
-   } else {
-       // Nie wszystkie pola zostały przesłane
-       echo "Wszystkie pola są wymagane!";
-   }
+        // Wykonanie zapytania
+        $result = mysqli_query($conn, $query);
+
+        if ($result) {
+            // Użytkownik dodany pomyślnie, możesz przekierować gdziekolwiek chcesz
+            header("Location: login.php");
+            exit();
+        } else {
+            // Błąd dodawania użytkownika
+            echo "Błąd podczas rejestracji użytkownika: " . mysqli_error($conn);
+        }
+    } else {
+        // Nie wszystkie pola zostały przesłane
+        echo "Wszystkie pola są wymagane!";
+    }
 }
-?>
 ?>
 
 <!DOCTYPE html>
@@ -54,9 +56,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
 
- 
  <nav class="mainNav">
- <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
+    <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
     <div class="mainNav__links">
        <a href="" class="mainNav__link">Zacznij naukę</a>
        <a href="" class="mainNav__link">O nas</a>
@@ -103,8 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 </script>
 
-  
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 
 </html>

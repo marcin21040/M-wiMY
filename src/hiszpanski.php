@@ -2,7 +2,7 @@
 session_start(); // Uruchomienie sesji
 
 // Ustawienie języka w sesji
-$_SESSION['language'] = 'angielski';
+$_SESSION['language'] = 'hiszpanski';
 
 require_once('connection.php');
 
@@ -50,7 +50,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 <header class="mainHeading">
     <div class="mainHeading__content lang-niemiecki">
-        <h1>EN Angielski EN</h1>
+        <h1>SP Hiszpański SP</h1>
         <div class="fiszki-quizy">
             <article class="mainHeading__text">
                 <p class="mainHeading__preTitle">Mówimy</p>
