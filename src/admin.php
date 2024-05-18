@@ -151,6 +151,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['make_admin'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Panel Administratora</title>
+    <link rel="stylesheet" href="dist/prod.css">
 </head>
 <body>
     <nav class="mainNav">
@@ -160,7 +161,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['make_admin'])) {
         </div>
     </nav>
 
-    <header class="mainHeading">
+    <div class="admin-wrapper">
+
+        <div class="top-wrapper">
+        <header class="mainHeading admin-panel">
         <div class="mainHeading__content">
             <h1>Dodaj nowe słówko</h1>
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
@@ -188,7 +192,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['make_admin'])) {
         </div>
     </header>
 
-    <div class="words-list">
+    <div class="users-list admin-panel">
+        <h2>Lista użytkowników</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Login</th>
+                    <th>Email</th>
+                    <th>Admin</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($users as $user): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($user['login']); ?></td>
+                        <td><?php echo htmlspecialchars($user['email']); ?></td>
+                        <td><?php echo $user['is_admin'] ? 'Tak' : 'Nie'; ?></td>
+                        <td>
+                            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                <button type="submit" name="delete_user">Usuń</button>
+                                <?php if (!$user['is_admin']): ?>
+                                    <button type="submit" name="make_admin">Nadaj uprawnienia admina</button>
+                                <?php endif; ?>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+        </div>
+
+    
+
+    <div class="words-list admin-panel">
         <h2>Lista słów</h2>
         <form method="get" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="category_filter">Filtruj według kategorii:</label>
@@ -233,36 +272,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['make_admin'])) {
         </table>
     </div>
 
-    <div class="users-list">
-        <h2>Lista użytkowników</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Login</th>
-                    <th>Email</th>
-                    <th>Admin</th>
-                    <th>Akcje</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($users as $user): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($user['login']); ?></td>
-                        <td><?php echo htmlspecialchars($user['email']); ?></td>
-                        <td><?php echo $user['is_admin'] ? 'Tak' : 'Nie'; ?></td>
-                        <td>
-                            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                <button type="submit" name="delete_user">Usuń</button>
-                                <?php if (!$user['is_admin']): ?>
-                                    <button type="submit" name="make_admin">Nadaj uprawnienia admina</button>
-                                <?php endif; ?>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+    
     </div>
 </body>
 </html>

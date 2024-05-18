@@ -50,29 +50,30 @@ require_once('connection.php');
         </div>
     </nav>
 
-    <header class="mainHeading">
+    <header class="mainHeading login_wrapper">
         <div class="mainHeading__content">
+            <div class="language_wrapper intro">
+                <a class="language" href="set_language.php?language=niemiecki">
+                    <img src="dist/images/germany-flag.png">
+                    <p>Niemiecki</p>
+                </a>
+                <a class="language" href="set_language.php?language=angielski">
+                    <img src="dist/images/uk-flag.png">
+                    <p>Angielski</p>
+                </a>
+                <a class="language" href="set_language.php?language=hiszpanski">
+                    <img src="dist/images/spain-flag.png">
+                    <p>Hiszpański</p>
+                </a>
+                <a class="language" href="set_language.php?language=francuski">
+                    <img src="dist/images/france-flag.jpg">
+                    <p>Francuski</p>
+                </a>
+            </div>
         </div>
     </header>
 
-    <div class="language_wrapper intro">
-        <a class="language" href="set_language.php?language=niemiecki">
-            <img src="dist/images/germany-flag.png">
-            <p>Niemiecki</p>
-        </a>
-        <a class="language" href="set_language.php?language=angielski">
-            <img src="dist/images/uk-flag.png">
-            <p>Angielski</p>
-        </a>
-        <a class="language" href="set_language.php?language=hiszpanski">
-            <img src="dist/images/spain-flag.png">
-            <p>Hiszpański</p>
-        </a>
-        <a class="language" href="set_language.php?language=francuski">
-            <img src="dist/images/france-flag.jpg">
-            <p>Francuski</p>
-        </a>
-    </div>
+
 
     <script src="script.js"></script>
 </body>

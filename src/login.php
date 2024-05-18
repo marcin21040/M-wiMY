@@ -95,18 +95,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </svg>
         </div>
     </nav>
-    <header class="mainHeading">
-        <div class="mainHeading__content"></div>
+    <header class="mainHeading login_wrapper">
+        <div class="mainHeading__content">
+            <div class="login-form">
+                <h2>Zaloguj się</h2>
+                <form action="login.php" method="post">
+                    <input type="text" name="login" placeholder="Login" required />
+                    <input type="password" name="Haslo" placeholder="Hasło" required />
+                    <button type="submit">Zaloguj się</button>
+                </form>
+            </div>
+        </div>
     </header>
-
-    <div class="login-form">
-        <h2>Zaloguj się</h2>
-        <form action="login.php" method="post">
-            <input type="text" name="login" placeholder="Login" required />
-            <input type="password" name="Haslo" placeholder="Hasło" required />
-            <button type="submit">Zaloguj się</button>
-        </form>
-    </div>
 
     <script>
         function redirectToRegister() {

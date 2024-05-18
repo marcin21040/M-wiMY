@@ -109,29 +109,32 @@ switch ($language) {
         </svg>
     </div>
 </nav>
-<header class="mainHeading">
+<header class="mainHeading login_wrapper words_wrapper">
     <div class="mainHeading__content">
         <h1>Quiz słówek: <?php echo htmlspecialchars($language); ?></h1>
+
+        <?php if (!empty($words)): ?>
+            <form method="post" action="submit_quiz.php?category_id=<?php echo isset($categoryId) ? $categoryId : ''; ?>" class="quiz-form">
+                <?php foreach ($words as $index => $word): ?>
+                    <div class="word-item">
+                        <p>Oryginał: <?php echo htmlspecialchars($word['word']); ?></p>
+                        <label for="word-<?php echo $word['id']; ?>-translation"><?php echo ucfirst($language); ?>:</label>
+                        <input type="text" id="word-<?php echo $word['id']; ?>-translation" name="answers[<?php echo $index; ?>][translation]" required>
+                        <input type="hidden" name="questions[<?php echo $index; ?>][id]" value="<?php echo $word['id']; ?>">
+                        <input type="hidden" name="questions[<?php echo $index; ?>][word]" value="<?php echo $word['word']; ?>">
+                        <input type="hidden" name="questions[<?php echo $index; ?>][translation]" value="<?php echo $word[$translationColumn]; ?>">
+                    </div>
+                <?php endforeach; ?>
+                <button type="submit">Zakończ quiz</button>
+            </form>
+        <?php else: ?>
+            <p>Brak słów w tej kategorii.</p>
+        <?php endif; ?>
+
     </div>
 </header>
 
-<?php if (!empty($words)): ?>
-    <form method="post" action="submit_quiz.php?category_id=<?php echo isset($categoryId) ? $categoryId : ''; ?>" class="quiz-form">
-        <?php foreach ($words as $index => $word): ?>
-            <div class="word-item">
-                <p>Oryginał: <?php echo htmlspecialchars($word['word']); ?></p>
-                <label for="word-<?php echo $word['id']; ?>-translation"><?php echo ucfirst($language); ?>:</label>
-                <input type="text" id="word-<?php echo $word['id']; ?>-translation" name="answers[<?php echo $index; ?>][translation]" required>
-                <input type="hidden" name="questions[<?php echo $index; ?>][id]" value="<?php echo $word['id']; ?>">
-                <input type="hidden" name="questions[<?php echo $index; ?>][word]" value="<?php echo $word['word']; ?>">
-                <input type="hidden" name="questions[<?php echo $index; ?>][translation]" value="<?php echo $word[$translationColumn]; ?>">
-            </div>
-        <?php endforeach; ?>
-        <button type="submit">Zakończ quiz</button>
-    </form>
-<?php else: ?>
-    <p>Brak słów w tej kategorii.</p>
-<?php endif; ?>
+
 
 <script src="script.js"></script>
 </body>

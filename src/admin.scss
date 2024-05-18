@@ -1,0 +1,164 @@
+.admin-wrapper {
+    margin-top: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+
+    .top-wrapper {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        width: 90%;
+        justify-content: space-between;
+        gap: 25px;
+    }
+
+    .mainHeading__content {
+        flex-direction: column;
+        min-height: unset;
+        align-items: flex-start;
+    }
+
+    .admin-panel {
+        padding: 25px;
+        border-radius: 25px;
+        background-color: #fff6;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+        &.mainHeading  {
+            width: 35%;
+
+            h1 {
+                padding-bottom: 35px;
+            }
+
+            input, select {
+                padding: 5px;
+            }
+
+            select {
+                font-size: 15px;
+            }
+
+            button {
+                margin-top: 15px;
+                padding: 10px 25px;
+                border-radius: 10px;
+                background-color: #fff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                cursor: pointer;
+
+                &:hover {
+                    background-color: #fff6;
+                }
+            }
+            
+
+            font-size: 20px;
+        }
+
+        &.users-list {
+            width: 65%;
+
+            h2 {
+                padding-bottom: 25px;
+            }
+
+            table {
+                width: 100%;
+                text-align: left;
+
+                th {
+                    text-decoration: underline;
+                    padding-bottom: 10px;
+                    text-underline-offset: 5px;
+                }
+
+                tr {
+                    padding-bottom: 25px;
+                }
+
+                button {
+                    margin-top: 15px;
+                    padding: 10px 25px;
+                    border-radius: 10px;
+                    background-color: #fff;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    cursor: pointer;
+    
+                    &:hover {
+                        background-color: rgba(255, 0, 0, 0.4);
+                    }
+                }
+            }
+        }
+
+        &.words-list {
+            width: 90%;
+
+            input, select {
+                padding: 5px;
+            }
+
+            select {
+                font-size: 15px;
+            }
+
+            h2 {
+                padding-bottom: 25px;
+            }
+
+            form {
+                padding-bottom: 20px;
+
+                button {
+                    margin-top: 15px;
+                    padding: 10px 25px;
+                    border-radius: 10px;
+                    background-color: #fff;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    cursor: pointer;
+    
+                    &:hover {
+                        background-color: #fff6;
+                    }
+                }
+            }
+
+            table {
+                width: 100%;
+
+                thread {
+                    padding-bottom: 15px;
+                }
+
+                th {
+                    text-align: left;
+                    font-size: 20px;
+                    text-decoration: underline;
+                    padding-bottom: 10px;
+                    text-underline-offset: 5px;
+                }
+
+                td {
+                    
+                    form {
+                        button {
+                            margin-top: 15px;
+                            padding: 10px 25px;
+                            border-radius: 10px;
+                            background-color: #fff;
+                            box-shadow: 0 0 10px #0000001a;
+                            cursor: pointer;
+
+                            &:hover {
+                                background-color: rgba(255, 0, 0, 0.4);
+                            }
+                        }
+                    }
+                } 
+            }
+        }
+    }
+}
