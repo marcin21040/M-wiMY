@@ -15,11 +15,25 @@ while ($row = mysqli_fetch_assoc($result)) {
     $categories[] = $row;
 }
 
-// Pobierz wszystkie słówka
+// Sprawdź, czy wybrano kategorię
+$selected_category = isset($_GET['category_id']) ? $_GET['category_id'] : null;
+
+// Pobierz słowa według kategorii
 $words = [];
-$result = mysqli_query($conn, "SELECT * FROM words");
-while ($row = mysqli_fetch_assoc($result)) {
-    $words[] = $row;
+if ($selected_category) {
+    $stmt = $conn->prepare("SELECT w.id, w.word, w.translation_pl, w.translation_de, w.translation_en, w.translation_es, w.translation_fr FROM words w
+                            JOIN word_categories wc ON w.id = wc.word_id WHERE wc.category_id = ?");
+    $stmt->bind_param("i", $selected_category);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = mysqli_fetch_assoc($result)) {
+        $words[] = $row;
+    }
+} else {
+    $result = mysqli_query($conn, "SELECT * FROM words");
+    while ($row = mysqli_fetch_assoc($result)) {
+        $words[] = $row;
+    }
 }
 
 // Pobierz wszystkich użytkowników
@@ -176,6 +190,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['make_admin'])) {
 
     <div class="words-list">
         <h2>Lista słów</h2>
+        <form method="get" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+            <label for="category_filter">Filtruj według kategorii:</label>
+            <select id="category_filter" name="category_id">
+                <option value="">Wszystkie</option>
+                <?php foreach ($categories as $category): ?>
+                    <option value="<?php echo $category['id']; ?>" <?php if ($selected_category == $category['id']) echo 'selected'; ?>><?php echo $category['name']; ?></option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit">Filtruj</button>
+        </form>
         <table>
             <thead>
                 <tr>
