@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once('connection.php');
-require_once('srs_functions.php'); // Zakładając, że masz funkcje SRS tutaj
+require_once('srs_functions.php');
 
 // Sprawdź, czy użytkownik jest zalogowany
 if (!isset($_SESSION['login'])) {
@@ -11,19 +11,8 @@ if (!isset($_SESSION['login'])) {
 
 $userId = $_SESSION['user_id']; // Zakładam, że id użytkownika jest przechowywane w sesji
 
-// Pobierz category_id z parametrów URL
-$categoryId = isset($_GET['category_id']) ? intval($_GET['category_id']) : null;
-
-if ($categoryId === null) {
-    die("Brak zdefiniowanej kategorii.");
-}
-
-// Debugowanie wartości category_id
-echo "category_id: $categoryId<br>";
-
 // Pobierz słowa do przeglądu
-$wordsToReview = getWordsForReview($userId, $categoryId);
-
+$wordsToReview = getWordsDueForReview($userId);
 ?>
 
 <!DOCTYPE html>
@@ -78,7 +67,14 @@ $wordsToReview = getWordsForReview($userId, $categoryId);
                     <tr>
                         <td><?php echo htmlspecialchars($word['word']); ?></td>
                         <td><?php echo htmlspecialchars($word['translation_pl']); // lub inna kolumna tłumaczenia ?></td>
-                        <td><?php echo htmlspecialchars($word['next_review']); ?></td>
+                        <td>
+                            <?php 
+                            echo htmlspecialchars($word['next_review']); 
+                            if ($word['next_review'] == date('Y-m-d', strtotime('+1 day'))) {
+                                echo " (do powtórzenia jutro)";
+                            }
+                            ?>
+                        </td>
                         <td><?php echo htmlspecialchars($word['repetitions']); ?></td>
                         <td><?php echo htmlspecialchars($word['review_interval']); ?></td>
                         <td><?php echo htmlspecialchars($word['ease']); ?></td>

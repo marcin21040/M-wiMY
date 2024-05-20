@@ -13,7 +13,6 @@ $userId = $_SESSION['user_id']; // Zakładam, że id użytkownika jest przechowy
 
 // Pobierz język z sesji
 $language = $_SESSION['language'] ?? '';
-echo "Ustawiony język: $language<br>"; // Debugowanie
 
 // Funkcja do pobierania słów z kategorii
 function getWordsByCategory($categoryId) {
@@ -59,7 +58,7 @@ if (isset($_GET['incorrect_ids'])) {
     $words = getWordsByIds($incorrectIds);
 } elseif ($categoryId !== null && $type !== null) {
     if ($type === 'flashcard') {
-        $words = getWordsForReview($userId, $categoryId); // Użyj funkcji SRS do pobierania słów do powtórki
+        $words = getWordsForReview($userId); // Użyj funkcji SRS do pobierania słów do powtórki
     } else {
         $words = getWordsByCategory($categoryId);
         // Losuj 10 słówek tylko w trybie quizu
@@ -89,7 +88,6 @@ switch ($language) {
         $translationColumn = 'word'; // Domyślna kolumna, jeśli język nie jest ustawiony prawidłowo
         break;
 }
-echo "Kolumna tłumaczeń: $translationColumn<br>"; // Debugowanie
 ?>
 
 <!DOCTYPE html>
@@ -164,15 +162,7 @@ echo "Kolumna tłumaczeń: $translationColumn<br>"; // Debugowanie
                     <?php foreach ($words as $index => $word): ?>
                         <div class="flashcard">
                             <p class="original"><?php echo htmlspecialchars($word['word']); ?></p>
-                            <p class="translation">
-                                <?php 
-                                if(isset($word[$translationColumn])) {
-                                    echo htmlspecialchars($word[$translationColumn]);
-                                } else {
-                                    echo 'Brak tłumaczenia';
-                                }
-                                ?>
-                            </p>
+                            <p class="translation"><?php echo htmlspecialchars($word[$translationColumn]); ?></p>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -185,7 +175,7 @@ echo "Kolumna tłumaczeń: $translationColumn<br>"; // Debugowanie
                             <input type="text" id="word-<?php echo $word['id']; ?>-translation" name="answers[<?php echo $index; ?>][translation]" required>
                             <input type="hidden" name="questions[<?php echo $index; ?>][id]" value="<?php echo $word['id']; ?>">
                             <input type="hidden" name="questions[<?php echo $index; ?>][word]" value="<?php echo $word['word']; ?>">
-                            <input type="hidden" name="questions[<?php echo $index; ?>][translation]" value="<?php echo isset($word[$translationColumn]) ? htmlspecialchars($word[$translationColumn]) : 'Brak tłumaczenia'; ?>">
+                            <input type="hidden" name="questions[<?php echo $index; ?>][translation]" value="<?php echo $word[$translationColumn]; ?>">
                         </div>
                     <?php endforeach; ?>
                     <button type="submit">Zakończ quiz</button>

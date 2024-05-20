@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once('connection.php');
+require_once('srs_functions.php'); // Dodajemy plik z funkcjami SRS
 
 // Sprawdź czy użytkownik jest zalogowany
 if (!isset($_SESSION['login'])) {
@@ -8,8 +10,11 @@ if (!isset($_SESSION['login'])) {
     exit();
 }
 
-// Jeśli użytkownik jest zalogowany, możemy wykonać inne operacje, np. pobieranie danych użytkownika z bazy danych itp.
-require_once('connection.php');
+$userId = $_SESSION['user_id']; // Zakładam, że id użytkownika jest przechowywane w sesji
+$wordsToReviewCount = countWordsForReview($userId);
+// Sprawdź, czy użytkownik ma słowa do powtórki
+$wordsToReview = getWordsDueForReview($userId);
+$hasWordsToReview = !empty($wordsToReview);
 ?>
 
 <!DOCTYPE html>
@@ -25,6 +30,18 @@ require_once('connection.php');
     <title>Strona Główna</title>
     <script type="module" src="main.js" defer></script>
     <link rel="stylesheet" href="dist/prod.css">
+    <style style?>  .notification {
+    background-color: #ffcc00;
+    color: #000;
+    padding: 15px;
+    margin: 20px 0;
+    border: 1px solid #ffa500;
+    border-radius: 5px;
+}
+.notification a {
+    color: #000;
+    text-decoration: underline;
+}</style>
 </head>
 
 <body>
@@ -32,7 +49,7 @@ require_once('connection.php');
     <nav class="mainNav">
         <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
         <div class="mainNav__links">
-        <a href="srs_review.php" class="mainNav__link">Wyniki</a>
+            <a href="srs_review.php" class="mainNav__link">Wyniki</a>
             <a href="user_history.php" class="mainNav__link">Historia</a>
             <a href="logout.php" class="mainNav__link">Wyloguj się</a>
         </div>
@@ -74,7 +91,16 @@ require_once('connection.php');
         </div>
     </header>
 
+    <div class="mainContent">
+        <?php if ($wordsToReviewCount > 0): ?>
+            <div class="notification">
+                <p>Masz <?php echo $wordsToReviewCount; ?> słów do powtórki. <a href="srs_review.php">Przejdź do powtórki</a></p>
+            </div>
+        <?php endif; ?>
+    </div>
+
     <script src="script.js"></script>
 </body>
 
 </html>
+

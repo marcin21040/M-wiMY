@@ -46,16 +46,19 @@ foreach ($_POST['questions'] as $index => $question) {
     $questionId = $question['id'];
     $correctAnswer = $question['translation']; // Korzystamy z dynamicznej kolumny translation
     $userAnswer = $_POST['answers'][$index]['translation'];
-    
+
     $_SESSION['user_answers'][$questionId] = $userAnswer; // Przechowuj odpowiedź użytkownika
     $_SESSION['correct_answers_list'][$questionId] = $correctAnswer; // Przechowuj poprawną odpowiedź
+    
+    // Debugowanie odpowiedzi
+    error_log("Sprawdzanie pytania ID: $questionId, Poprawna odpowiedź: $correctAnswer, Odpowiedź użytkownika: $userAnswer");
 
     if (strtolower(trim($correctAnswer)) === strtolower(trim($userAnswer))) {
         $correctAnswers++;
         $grade = 5; // Ocena 5 dla poprawnych odpowiedzi
     } else {
         $incorrectAnswers[] = [
-            'id' => $question['id'],
+            'id' => $questionId,
             'word' => $question['word'],
             'correct' => $correctAnswer,
             'user' => $userAnswer
@@ -70,11 +73,13 @@ foreach ($_POST['questions'] as $index => $question) {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        error_log("Zaktualizuj istniejące słowo dla user_id: $userId, word_id: $questionId z oceną: $grade");
         updateSRS($userId, $questionId, $grade); // Zaktualizuj istniejące słowo
     } else {
-        error_log("Dodaj nowe słowo dla user_id: $userId, word_id: $questionId z oceną: $grade");
-        addNewWordToSRS($userId, $questionId); // Dodaj nowe słowo
+        // Dodaj nowe słowo
+        $nextReview = date('Y-m-d', strtotime("+1 day"));
+        $stmt = $conn->prepare("INSERT INTO srs_words (user_id, word_id, next_review, repetitions, review_interval, ease) VALUES (?, ?, ?, 0, 1, 2.5)");
+        $stmt->bind_param("iis", $userId, $questionId, $nextReview);
+        $stmt->execute();
         updateSRS($userId, $questionId, $grade); // Zaktualizuj nowe słowo
     }
 
@@ -102,4 +107,3 @@ $incorrectIdsSerialized = urlencode(serialize($incorrectIds));
 
 header("Location: result.php?category_id=$categoryId&type=$type&incorrect_ids=$incorrectIdsSerialized");
 exit();
-
