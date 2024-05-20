@@ -10,6 +10,7 @@ if (!isset($_SESSION['login'])) {
 
 $userId = $_SESSION['user_id']; // Zakładam, że id użytkownika jest przechowywane w sesji
 
+// Pobierz historię użytkownika
 $query = "SELECT uh.id, c.name as category_name, uh.type, uh.correct_answers, uh.total_questions, uh.date, uh.language
           FROM user_history uh
           JOIN categories c ON uh.category_id = c.id
@@ -21,6 +22,17 @@ $stmt->execute();
 $result = $stmt->get_result();
 $history = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
+
+// Pobierz dane do analizy
+$queryAnalysis = "SELECT COUNT(*) as login_count, AVG(session_time) as avg_session_time
+                  FROM user_sessions
+                  WHERE user_id = ?";
+$stmtAnalysis = $conn->prepare($queryAnalysis);
+$stmtAnalysis->bind_param("i", $userId);
+$stmtAnalysis->execute();
+$resultAnalysis = $stmtAnalysis->get_result();
+$analysisData = $resultAnalysis->fetch_assoc();
+$stmtAnalysis->close();
 ?>
 
 <!DOCTYPE html>
@@ -32,6 +44,43 @@ $stmt->close();
     <title>Historia użytkownika</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Dodanie biblioteki Chart.js -->
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .history {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .analysis {
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            background-color: inherit;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
         .progress-bar-container {
             width: 100%;
             background-color: #f3f3f3;
@@ -39,7 +88,6 @@ $stmt->close();
             overflow: hidden;
             margin: 10px 0;
         }
-
         .progress-bar {
             height: 24px;
             background-color: #4caf50;
@@ -48,11 +96,41 @@ $stmt->close();
             line-height: 24px; /* Vertically center text */
             border-radius: 25px;
         }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .charts {
+            margin: 20px 0;
+        }
+        #backButton {
+            display: block;
+            margin: 0 auto 20px auto;
+            width: fit-content;
+        }
     </style>
 </head>
 <body>
     <div class="history">
         <h1>Historia użytkownika</h1>
+        <a href="zalogowany.php" id="backButton" class="button">Powrót</a>
+
+        <div class="analysis">
+            <h2>Analiza użytkowania</h2>
+            <p>Ilość logowań: <?php echo htmlspecialchars($analysisData['login_count']); ?></p>
+            <p>Średni czas sesji: <?php echo htmlspecialchars($analysisData['avg_session_time'] !== null ? round($analysisData['avg_session_time'], 2) . ' sekund' : 'brak danych'); ?></p>
+        </div>
+
         <?php if (!empty($history)): ?>
             <table>
                 <thead>
@@ -91,7 +169,7 @@ $stmt->close();
                             <td>
                                 <form method="post" action="delete_history.php">
                                     <input type="hidden" name="id" value="<?php echo $entry['id']; ?>">
-                                    <button type="submit">Usuń</button>
+                                    <button type="submit" class="button">Usuń</button>
                                 </form>
                             </td>
                         </tr>

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once('connection.php');
+require_once('srs_functions.php'); // Dodaj ten wiersz, aby załadować funkcje SRS
 
 // Sprawdź, czy użytkownik jest zalogowany
 if (!isset($_SESSION['login'])) {
@@ -8,20 +9,23 @@ if (!isset($_SESSION['login'])) {
     exit();
 }
 
+$userId = $_SESSION['user_id']; // Zakładam, że id użytkownika jest przechowywane w sesji
+
 // Pobierz język z sesji
 $language = $_SESSION['language'] ?? '';
+echo "Ustawiony język: $language<br>"; // Debugowanie
 
 // Funkcja do pobierania słów z kategorii
-function getWordsByCategory($categoryId, $type) {
+function getWordsByCategory($categoryId) {
     global $conn;
     $stmt = $conn->prepare(
         "SELECT w.id, w.word, w.translation_pl, w.translation_de, w.translation_en, w.translation_es, w.translation_fr
         FROM words w
         JOIN word_categories wc ON w.id = wc.word_id
         JOIN categories c ON wc.category_id = c.id
-        WHERE c.id = ? AND c.type = ?"
+        WHERE c.id = ?"
     );
-    $stmt->bind_param("is", $categoryId, $type);
+    $stmt->bind_param("i", $categoryId);
     $stmt->execute();
     $result = $stmt->get_result();
     $words = $result->fetch_all(MYSQLI_ASSOC);
@@ -35,23 +39,34 @@ function getWordsByIds($ids) {
     $ids = implode(',', array_map('intval', $ids)); // Zabezpieczenie przed SQL injection
     $query = "SELECT id, word, translation_pl, translation_de, translation_en, translation_es, translation_fr FROM words WHERE id IN ($ids)";
     $result = mysqli_query($conn, $query);
+
+    // Sprawdzenie, czy zapytanie SQL zwróciło wynik
+    if (!$result) {
+        return []; // lub możesz rzucić wyjątek lub wyświetlić komunikat o błędzie
+    }
+
     $words = mysqli_fetch_all($result, MYSQLI_ASSOC);
     return $words;
 }
 
 // Pobierz słowa w zależności od parametrów URL
 $words = [];
+$categoryId = isset($_GET['category_id']) ? $_GET['category_id'] : null;
+$type = isset($_GET['type']) ? $_GET['type'] : null;
+
 if (isset($_GET['incorrect_ids'])) {
     $incorrectIds = unserialize(urldecode($_GET['incorrect_ids']));
     $words = getWordsByIds($incorrectIds);
-} elseif (isset($_GET['category_id']) && isset($_GET['type'])) {
-    $categoryId = $_GET['category_id'];
-    $type = $_GET['type'];
-    $words = getWordsByCategory($categoryId, $type);
-    // Losuj 10 słówek
-    if (count($words) > 10) {
-        $random_keys = array_rand($words, 10);
-        $words = array_intersect_key($words, array_flip($random_keys));
+} elseif ($categoryId !== null && $type !== null) {
+    if ($type === 'flashcard') {
+        $words = getWordsForReview($userId, $categoryId); // Użyj funkcji SRS do pobierania słów do powtórki
+    } else {
+        $words = getWordsByCategory($categoryId);
+        // Losuj 10 słówek tylko w trybie quizu
+        if (count($words) > 10) {
+            $random_keys = array_rand($words, 10);
+            $words = array_intersect_key($words, array_flip($random_keys));
+        }
     }
 }
 
@@ -74,6 +89,7 @@ switch ($language) {
         $translationColumn = 'word'; // Domyślna kolumna, jeśli język nie jest ustawiony prawidłowo
         break;
 }
+echo "Kolumna tłumaczeń: $translationColumn<br>"; // Debugowanie
 ?>
 
 <!DOCTYPE html>
@@ -88,10 +104,39 @@ switch ($language) {
     <title>Strona Główna</title>
     <script type="module" src="main.js" defer></script>
     <link rel="stylesheet" href="dist/prod.css">
+    <style>
+        .flashcards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .flashcard {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .flashcard .original {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .flashcard .translation {
+            font-size: 16px;
+            color: #555;
+        }
+    </style>
 </head>
 <body>
 <nav class="mainNav">
-    <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
+    <div class="mainNav__logo"><a href="zalogowany.php">MówiMY</a></div>
     <div class="mainNav__links">
         <a href="wyloguj.php" class="mainNav__link">Wyloguj się</a>
     </div>
@@ -111,30 +156,47 @@ switch ($language) {
 </nav>
 <header class="mainHeading login_wrapper words_wrapper">
     <div class="mainHeading__content">
-        <h1>Quiz słówek: <?php echo htmlspecialchars($language); ?></h1>
+        <h1><?php echo $type === 'flashcard' ? 'Fiszki' : 'Quiz'; ?>: <?php echo htmlspecialchars($language); ?></h1>
 
         <?php if (!empty($words)): ?>
-            <form method="post" action="submit_quiz.php?category_id=<?php echo isset($categoryId) ? $categoryId : ''; ?>" class="quiz-form">
-                <?php foreach ($words as $index => $word): ?>
-                    <div class="word-item">
-                        <p>Oryginał: <?php echo htmlspecialchars($word['word']); ?></p>
-                        <label for="word-<?php echo $word['id']; ?>-translation"><?php echo ucfirst($language); ?>:</label>
-                        <input type="text" id="word-<?php echo $word['id']; ?>-translation" name="answers[<?php echo $index; ?>][translation]" required>
-                        <input type="hidden" name="questions[<?php echo $index; ?>][id]" value="<?php echo $word['id']; ?>">
-                        <input type="hidden" name="questions[<?php echo $index; ?>][word]" value="<?php echo $word['word']; ?>">
-                        <input type="hidden" name="questions[<?php echo $index; ?>][translation]" value="<?php echo $word[$translationColumn]; ?>">
-                    </div>
-                <?php endforeach; ?>
-                <button type="submit">Zakończ quiz</button>
-            </form>
+            <?php if ($type === 'flashcard'): ?>
+                <div class="flashcards">
+                    <?php foreach ($words as $index => $word): ?>
+                        <div class="flashcard">
+                            <p class="original"><?php echo htmlspecialchars($word['word']); ?></p>
+                            <p class="translation">
+                                <?php 
+                                if(isset($word[$translationColumn])) {
+                                    echo htmlspecialchars($word[$translationColumn]);
+                                } else {
+                                    echo 'Brak tłumaczenia';
+                                }
+                                ?>
+                            </p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <form method="post" action="submit_quiz.php?category_id=<?php echo isset($categoryId) ? htmlspecialchars($categoryId) : ''; ?>&type=<?php echo isset($type) ? htmlspecialchars($type) : ''; ?>" class="quiz-form">
+                    <?php foreach ($words as $index => $word): ?>
+                        <div class="word-item">
+                            <p>Oryginał: <?php echo htmlspecialchars($word['word']); ?></p>
+                            <label for="word-<?php echo $word['id']; ?>-translation"><?php echo ucfirst($language); ?>:</label>
+                            <input type="text" id="word-<?php echo $word['id']; ?>-translation" name="answers[<?php echo $index; ?>][translation]" required>
+                            <input type="hidden" name="questions[<?php echo $index; ?>][id]" value="<?php echo $word['id']; ?>">
+                            <input type="hidden" name="questions[<?php echo $index; ?>][word]" value="<?php echo $word['word']; ?>">
+                            <input type="hidden" name="questions[<?php echo $index; ?>][translation]" value="<?php echo isset($word[$translationColumn]) ? htmlspecialchars($word[$translationColumn]) : 'Brak tłumaczenia'; ?>">
+                        </div>
+                    <?php endforeach; ?>
+                    <button type="submit">Zakończ quiz</button>
+                </form>
+            <?php endif; ?>
         <?php else: ?>
             <p>Brak słów w tej kategorii.</p>
         <?php endif; ?>
 
     </div>
 </header>
-
-
 
 <script src="script.js"></script>
 </body>

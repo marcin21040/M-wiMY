@@ -3,30 +3,37 @@ session_start();
 require_once('connection.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sprawdzenie, czy dane zostały przesłane
+    
     if (isset($_POST['login']) && isset($_POST['Haslo'])) {
-        // Odbierz dane z formularza
+       
         $login = $_POST['login'];
         $Haslo = $_POST['Haslo'];
 
-        // Zabezpieczenie przed SQL Injection
+       
         $login = mysqli_real_escape_string($conn, $login);
         $Haslo = mysqli_real_escape_string($conn, $Haslo);
 
-        // Zapytanie SQL do sprawdzenia poprawności logowania
+        
         $query = "SELECT * FROM users WHERE login='$login'";
         $result = mysqli_query($conn, $query);
 
         if ($result) {
-            // Sprawdź, czy użytkownik istnieje w bazie danych
+            
             if (mysqli_num_rows($result) == 1) {
                 $row = mysqli_fetch_assoc($result);
-                // Sprawdź, czy hasło jest poprawne
-                if (password_verify($Haslo, $row['Haslo'])) { // Sprawdzenie hasła z hashowaniem
+               
+                if (password_verify($Haslo, $row['Haslo'])) { 
                     $_SESSION['login'] = $login;
-                    $_SESSION['user_id'] = $row['id']; // Ustawienie user_id w sesji
+                    $_SESSION['user_id'] = $row['id']; 
+                    
+                    $stmt = $conn->prepare("INSERT INTO user_sessions (user_id, login_time) VALUES (?, NOW())");
+                    $stmt->bind_param("i", $row['id']);
+                    $stmt->execute();
+                    $sessionId = $stmt->insert_id; 
+                    $_SESSION['session_id'] = $sessionId; 
+                    $stmt->close();
 
-                    // Sprawdź, czy użytkownik jest administratorem
+                    
                     if ($row['is_admin']) {
                         header("Location: admin.php");
                     } else {
@@ -43,14 +50,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "Błąd zapytania: " . mysqli_error($conn);
         }
     } else {
-        // Nie wszystkie pola zostały przesłane
+        
         echo "Wszystkie pola są wymagane!";
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -71,12 +78,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="" class="mainNav__link">O nas</a>
             <a href="" class="mainNav__link">Kontakt</a>
             <?php
-            // Sprawdź, czy użytkownik jest zalogowany
+            
             if (isset($_SESSION['login'])) {
-                // Jeśli zalogowany, wyświetl link do wylogowania
-                echo '<a href="wyloguj.php" class="mainNav__link">Wyloguj się</a>';
+                
+                echo '<a href="logout.php" class="mainNav__link">Wyloguj się</a>';
             } else {
-                // Jeśli niezalogowany, wyświetl link do logowania
+                
                 echo '<a href="login.php" class="mainNav__link">Zaloguj się</a>';
             }
             ?>

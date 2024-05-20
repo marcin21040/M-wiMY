@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once('connection.php');
+require_once('srs_functions.php'); // Dodaj ten wiersz, aby załadować funkcje SRS
 
 // Sprawdź, czy użytkownik jest zalogowany
 if (!isset($_SESSION['login'])) {
@@ -9,7 +10,8 @@ if (!isset($_SESSION['login'])) {
 }
 
 $userId = $_SESSION['user_id']; // Zakładam, że id użytkownika jest przechowywane w sesji
-$categoryId = $_GET['category_id'];
+$categoryId = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
+$type = isset($_GET['type']) ? $_GET['type'] : null;
 
 // Pobierz język z sesji
 $language = $_SESSION['language'] ?? '';
@@ -37,13 +39,20 @@ $correctAnswers = 0;
 $totalQuestions = count($_POST['questions']);
 $incorrectAnswers = [];
 
+$_SESSION['user_answers'] = []; // Przechowuj odpowiedzi użytkownika
+$_SESSION['correct_answers_list'] = []; // Przechowuj poprawne odpowiedzi
+
 foreach ($_POST['questions'] as $index => $question) {
     $questionId = $question['id'];
     $correctAnswer = $question['translation']; // Korzystamy z dynamicznej kolumny translation
     $userAnswer = $_POST['answers'][$index]['translation'];
+    
+    $_SESSION['user_answers'][$questionId] = $userAnswer; // Przechowuj odpowiedź użytkownika
+    $_SESSION['correct_answers_list'][$questionId] = $correctAnswer; // Przechowuj poprawną odpowiedź
 
     if (strtolower(trim($correctAnswer)) === strtolower(trim($userAnswer))) {
         $correctAnswers++;
+        $grade = 5; // Ocena 5 dla poprawnych odpowiedzi
     } else {
         $incorrectAnswers[] = [
             'id' => $question['id'],
@@ -51,60 +60,46 @@ foreach ($_POST['questions'] as $index => $question) {
             'correct' => $correctAnswer,
             'user' => $userAnswer
         ];
+        $grade = 1; // Ocena 1 dla niepoprawnych odpowiedzi
     }
+
+    // Zaktualizuj lub dodaj słowo do tabeli SRS
+    $stmt = $conn->prepare("SELECT * FROM srs_words WHERE user_id = ? AND word_id = ?");
+    $stmt->bind_param("ii", $userId, $questionId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        error_log("Zaktualizuj istniejące słowo dla user_id: $userId, word_id: $questionId z oceną: $grade");
+        updateSRS($userId, $questionId, $grade); // Zaktualizuj istniejące słowo
+    } else {
+        error_log("Dodaj nowe słowo dla user_id: $userId, word_id: $questionId z oceną: $grade");
+        addNewWordToSRS($userId, $questionId); // Dodaj nowe słowo
+        updateSRS($userId, $questionId, $grade); // Zaktualizuj nowe słowo
+    }
+
+    $stmt->close();
+}
+
+// Sprawdzenie poprawności category_id
+if ($categoryId === null || $categoryId <= 0) {
+    die("Nieprawidłowy category_id.");
 }
 
 // Zapisz wynik do tabeli user_history
-$stmt = $conn->prepare("INSERT INTO user_history (user_id, category_id, type, correct_answers, total_questions, language) VALUES (?, ?, 'quiz', ?, ?, ?)");
-$stmt->bind_param("iiiis", $userId, $categoryId, $correctAnswers, $totalQuestions, $language);
+$stmt = $conn->prepare("INSERT INTO user_history (user_id, category_id, type, correct_answers, total_questions, language) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("iisiis", $userId, $categoryId, $type, $correctAnswers, $totalQuestions, $language);
 $stmt->execute();
 $stmt->close();
+
+// Przechowaj dane w sesji
+$_SESSION['correct_answers'] = $correctAnswers;
+$_SESSION['wrong_answers'] = $totalQuestions - $correctAnswers;
 
 // Serializujemy błędne odpowiedzi, aby przekazać je przez URL
 $incorrectIds = array_column($incorrectAnswers, 'id');
 $incorrectIdsSerialized = urlencode(serialize($incorrectIds));
-?>
 
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Wynik quizu</title>
-</head>
-<body>
-    <div class="result">
-        <h1>Twój wynik</h1>
-        <p>Poprawne odpowiedzi: <?php echo $correctAnswers; ?> z <?php echo $totalQuestions; ?></p>
-        <div class="result-options">
-            <a href="words.php?category_id=<?php echo htmlspecialchars($_GET['category_id']); ?>&type=quiz" class="button">Zrób jeszcze raz</a>
-            <a href="words.php?incorrect_ids=<?php echo $incorrectIdsSerialized; ?>" class="button">Zrób jeszcze raz błędne</a>
-            <button class="button" onclick="toggleErrors()">Pokaż błędy</button>
-            <a href="niemiecki.php" class="button">Powrót</a>
-        </div>
-        <div class="errors" style="display:none;">
-            <h2>Błędy</h2>
-            <?php if (!empty($incorrectAnswers)): ?>
-                <ul>
-                    <?php foreach ($incorrectAnswers as $error): ?>
-                        <li>
-                            <strong><?php echo htmlspecialchars($error['word']); ?>:</strong> 
-                            Poprawna odpowiedź: <?php echo htmlspecialchars($error['correct']); ?>, 
-                            Twoja odpowiedź: <?php echo htmlspecialchars($error['user']); ?>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            <?php else: ?>
-                <p>Wszystkie odpowiedzi były poprawne!</p>
-            <?php endif; ?>
-        </div>
-    </div>
-    <script>
-        function toggleErrors() {
-            const errorsDiv = document.querySelector('.errors');
-            errorsDiv.style.display = errorsDiv.style.display === 'none' ? 'block' : 'none';
-        }
-    </script>
-</body>
-</html>
+header("Location: result.php?category_id=$categoryId&type=$type&incorrect_ids=$incorrectIdsSerialized");
+exit();
+

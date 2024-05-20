@@ -32,8 +32,9 @@ require_once('connection.php');
     <nav class="mainNav">
         <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
         <div class="mainNav__links">
+        <a href="srs_review.php" class="mainNav__link">Wyniki</a>
             <a href="user_history.php" class="mainNav__link">Historia</a>
-            <a href="wyloguj.php" class="mainNav__link">Wyloguj się</a>
+            <a href="logout.php" class="mainNav__link">Wyloguj się</a>
         </div>
         <div class="mainNav__icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -72,8 +73,6 @@ require_once('connection.php');
             </div>
         </div>
     </header>
-
-
 
     <script src="script.js"></script>
 </body>
