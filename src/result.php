@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once('connection.php');
+require_once('srs_functions.php'); // Dodaj ten wiersz, aby załadować funkcje SRS
 
 // Sprawdź, czy użytkownik jest zalogowany
 if (!isset($_SESSION['login'])) {
@@ -47,8 +48,9 @@ echo "<p>Wynik procentowy: " . number_format($percentage, 2) . "%</p>";
 
 if (!empty($incorrectIds)) {
     echo "<h2>Błędy</h2>";
+    echo "<form method='post' action='submit_evaluation.php'>";
     echo "<table>";
-    echo "<tr><th>Słowo</th><th>Poprawna odpowiedź</th><th>Twoja odpowiedź</th></tr>";
+    echo "<tr><th>Słowo</th><th>Poprawna odpowiedź</th><th>Twoja odpowiedź</th><th>Ocena</th></tr>";
 
     // Pobierz błędne odpowiedzi
     $placeholders = implode(',', array_fill(0, count($incorrectIds), '?'));
@@ -65,10 +67,27 @@ if (!empty($incorrectIds)) {
         $wordText = $word['word'];
         $correctAnswer = $word['correct'];
         $userAnswer = $_SESSION['user_answers'][$wordId] ?? 'N/A';
-        echo "<tr><td>$wordText</td><td>$correctAnswer</td><td>$userAnswer</td></tr>";
+        echo "<tr>";
+        echo "<td>$wordText</td>";
+        echo "<td>$correctAnswer</td>";
+        echo "<td>$userAnswer</td>";
+        echo "<td>";
+        echo "<select name='grades[$wordId]'>";
+        echo "<option value='5'>5 - Bardzo łatwe</option>";
+        echo "<option value='4'>4 - Łatwe</option>";
+        echo "<option value='3'>3 - Średnie</option>";
+        echo "<option value='2'>2 - Trudne</option>";
+        echo "<option value='1'>1 - Bardzo trudne</option>";
+        echo "</select>";
+        echo "</td>";
+        echo "</tr>";
     }
 
     echo "</table>";
+    echo "<input type='hidden' name='category_id' value='$categoryId'>";
+    echo "<input type='hidden' name='type' value='$type'>";
+    echo "<button type='submit'>Zapisz oceny</button>";
+    echo "</form>";
 }
 
 echo '<br><a href="zalogowany.php" class="btn">Powrót</a>';
