@@ -9,14 +9,7 @@ if (!isset($_SESSION['login'])) {
     exit();
 }
 
-$categoryId = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
-$type = isset($_GET['type']) ? $_GET['type'] : null;
 $incorrectIdsSerialized = isset($_GET['incorrect_ids']) ? $_GET['incorrect_ids'] : null;
-
-if ($categoryId === null || $categoryId <= 0) {
-    die("Nieprawidłowy category_id.");
-}
-
 $incorrectIds = unserialize(urldecode($incorrectIdsSerialized));
 
 // Pobierz język z sesji
@@ -45,14 +38,14 @@ $correctAnswers = $_SESSION['correct_answers'] ?? 0;
 $wrongAnswers = $_SESSION['wrong_answers'] ?? 0;
 $percentage = ($correctAnswers / ($correctAnswers + $wrongAnswers)) * 100;
 
-echo "<h1>Wyniki Quizu</h1>";
+echo "<h1>Wyniki Quizu SRS</h1>";
 echo "<p>Liczba poprawnych odpowiedzi: $correctAnswers</p>";
 echo "<p>Liczba błędnych odpowiedzi: $wrongAnswers</p>";
 echo "<p>Wynik procentowy: " . number_format($percentage, 2) . "%</p>";
 
 if (!empty($incorrectIds)) {
     echo "<h2>Błędy</h2>";
-    echo "<form method='post' action='submit_evaluation.php'>";
+    echo "<form method='post' action='submit_srs_evaluation.php'>";
     echo "<table>";
     echo "<tr><th>Słowo</th><th>Poprawna odpowiedź</th><th>Twoja odpowiedź</th><th>Ocena</th></tr>";
 
@@ -88,11 +81,9 @@ if (!empty($incorrectIds)) {
     }
 
     echo "</table>";
-    echo "<input type='hidden' name='category_id' value='$categoryId'>";
-    echo "<input type='hidden' name='type' value='$type'>";
     echo "<button type='submit'>Zapisz oceny</button>";
     echo "</form>";
 }
 
 echo '<br><a href="zalogowany.php" class="btn">Powrót</a>';
-
+?>

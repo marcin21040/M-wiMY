@@ -10,13 +10,6 @@ if (!isset($_SESSION['login'])) {
 }
 
 $userId = $_SESSION['user_id']; // Zakładam, że id użytkownika jest przechowywane w sesji
-$categoryId = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
-$type = isset($_GET['type']) ? $_GET['type'] : null;
-
-// Sprawdź poprawność category_id
-if ($categoryId === null || $categoryId <= 0) {
-    die("Nieprawidłowy category_id.");
-}
 
 // Pobierz język z sesji
 $language = $_SESSION['language'] ?? '';
@@ -91,12 +84,6 @@ foreach ($_POST['questions'] as $index => $question) {
     $stmt->close();
 }
 
-// Zapisz wynik do tabeli user_history
-$stmt = $conn->prepare("INSERT INTO user_history (user_id, category_id, type, correct_answers, total_questions, language) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("iisiis", $userId, $categoryId, $type, $correctAnswers, $totalQuestions, $language);
-$stmt->execute();
-$stmt->close();
-
 // Przechowaj dane w sesji
 $_SESSION['correct_answers'] = $correctAnswers;
 $_SESSION['wrong_answers'] = $totalQuestions - $correctAnswers;
@@ -105,5 +92,5 @@ $_SESSION['wrong_answers'] = $totalQuestions - $correctAnswers;
 $incorrectIds = array_column($incorrectAnswers, 'id');
 $incorrectIdsSerialized = urlencode(serialize($incorrectIds));
 
-header("Location: result.php?category_id=$categoryId&type=$type&incorrect_ids=$incorrectIdsSerialized");
+header("Location: srs_result.php?incorrect_ids=$incorrectIdsSerialized");
 exit();

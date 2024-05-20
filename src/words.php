@@ -53,18 +53,22 @@ $words = [];
 $categoryId = isset($_GET['category_id']) ? $_GET['category_id'] : null;
 $type = isset($_GET['type']) ? $_GET['type'] : null;
 
-if (isset($_GET['incorrect_ids'])) {
-    $incorrectIds = unserialize(urldecode($_GET['incorrect_ids']));
-    $words = getWordsByIds($incorrectIds);
+if (isset($_POST['word_ids'])) {
+    $wordIds = $_POST['word_ids'];
+    $words = getWordsByIds($wordIds);
 } elseif ($categoryId !== null && $type !== null) {
     if ($type === 'flashcard') {
-        $words = getWordsForReview($userId); // Użyj funkcji SRS do pobierania słów do powtórki
+        $words = getWordsByCategory($categoryId); // Pobierz wszystkie słowa z wybranej kategorii
     } else {
         $words = getWordsByCategory($categoryId);
+        
+        // Usuń powtórzenia
+        $words = array_unique($words, SORT_REGULAR);
+        
         // Losuj 10 słówek tylko w trybie quizu
         if (count($words) > 10) {
-            $random_keys = array_rand($words, 10);
-            $words = array_intersect_key($words, array_flip($random_keys));
+            shuffle($words); // Potasuj tablicę
+            $words = array_slice($words, 0, 10); // Pobierz pierwsze 10 słów
         }
     }
 }
