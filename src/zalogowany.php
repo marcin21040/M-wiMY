@@ -47,7 +47,7 @@ $hasWordsToReview = !empty($wordsToReview);
 <body>
 
     <nav class="mainNav">
-        <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
+        <div class="mainNav__logo"><a href="zalogowany.php">MówiMY</a></div>
         <div class="mainNav__links">
             <a href="srs_review.php" class="mainNav__link">Wyniki</a>
             <a href="user_history.php" class="mainNav__link">Historia</a>
