@@ -29,9 +29,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 <nav class="mainNav">
     <div class="mainNav__logo"><a href="zalogowany.php">MówiMY</a></div>
     <div class="mainNav__links">
-        <a href="" class="mainNav__link">Zacznij naukę</a>
-        <a href="" class="mainNav__link">O nas</a>
-        <a href="" class="mainNav__link">Kontakt</a>
+        <a href="logout.php" class="mainNav__link">Wyloguj się</a>
     </div>
     <div class="mainNav__icon">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
