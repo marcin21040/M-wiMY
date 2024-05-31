@@ -32,4 +32,3 @@ if (isset($_GET['language'])) {
     header("Location: zalogowany.php");
     exit();
 }
-?>

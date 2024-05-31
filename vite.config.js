@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-  root: 'src', // Aktualizacja ścieżki do głównego katalogu projektu
+  root: 'src', 
   plugins: [
     {
       name: 'custom-css-filename',
@@ -10,7 +10,7 @@ export default defineConfig({
       generateBundle(options, bundle) {
         for (const fileName in bundle) {
           if (bundle[fileName].type === 'asset' && fileName.endsWith('.css')) {
-            bundle[fileName].fileName = 'prod.css'; // Tutaj możesz ustawić niestandardową nazwę pliku CSS
+            bundle[fileName].fileName = 'prod.css'; 
           }
         }
       },
@@ -21,7 +21,7 @@ export default defineConfig({
       generateBundle(options, bundle) {
         for (const fileName in bundle) {
           if (bundle[fileName].type === 'chunk' && fileName.endsWith('.js')) {
-            bundle[fileName].fileName = 'prod.js'; // Tutaj możesz ustawić niestandardową nazwę pliku JS
+            bundle[fileName].fileName = 'prod.js'; 
           }
         }
       },
@@ -30,7 +30,6 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        // Możesz dodać tutaj opcje kompilatora Sass
         outputStyle: 'compressed'
       },
     },

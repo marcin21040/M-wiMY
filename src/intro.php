@@ -23,9 +23,9 @@ require_once('connection.php');
     <nav class="mainNav">
         <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
         <div class="mainNav__links">
-            <a href="" class="mainNav__link">Zacznij naukę</a>
-            <a href="" class="mainNav__link">O nas</a>
-            <a href="" class="mainNav__link">Kontakt</a>
+            <a href="learn.php" class="mainNav__link">Zacznij naukę</a>
+            <a href="about.php" class="mainNav__link">O nas</a>
+            <a href="contact.php" class="mainNav__link">Kontakt</a>
             <a href="login.php" class="mainNav__link">Zaloguj się</a>
         </div>
         <div class="mainNav__icon">
@@ -80,7 +80,7 @@ require_once('connection.php');
         </div>
         <div class="language">
             <img src="dist/images/france-flag.jpg">
-            <p>Francuzki</p>
+            <p>Francuski</p>
         </div>
     </div>
 

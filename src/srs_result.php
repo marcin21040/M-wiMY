@@ -86,4 +86,4 @@ if (!empty($incorrectIds)) {
 }
 
 echo '<br><a href="zalogowany.php" class="btn">Powrót</a>';
-?>
+

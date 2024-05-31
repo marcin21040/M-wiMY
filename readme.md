@@ -18,17 +18,3 @@ Aby uruchomić ten projekt, musisz mieć zainstalowane następujące narzędzia:
 ### Budowanie projektu
 
 Aby skompilować projekt do wersji produkcyjnej, uruchom `npm run build`. Skompresowana wersja CSS zostanie wygenerowana w katalogu `dist`.
-
-### Uwagi
-
-- Ten projekt jest zbudowany z wykorzystaniem frameworka Vite.
-- CSS jest eksportowany do skompresowanej wersji podczas kompilacji projektu.
-- Aby dowiedzieć się więcej o Vite, odwiedź [https://vitejs.dev/](https://vitejs.dev/).
-
-### Wsparcie
-
-Jeśli masz jakiekolwiek pytania lub problemy z tym projektem, możesz skontaktować się z autorem:
-
-**Paweł Waszkiewicz**
-
-- GitHub: [https://github.com/Index](https://github.com/Index)
