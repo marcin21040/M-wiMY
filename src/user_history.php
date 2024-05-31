@@ -2,15 +2,14 @@
 session_start();
 require_once('connection.php');
 
-// Sprawdź, czy użytkownik jest zalogowany
+
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
     exit();
 }
 
-$userId = $_SESSION['user_id']; // Zakładam, że id użytkownika jest przechowywane w sesji
+$userId = $_SESSION['user_id'];
 
-// Pobierz historię użytkownika
 $query = "SELECT uh.id, c.name as category_name, uh.type, uh.correct_answers, uh.total_questions, uh.date, uh.language
           FROM user_history uh
           JOIN categories c ON uh.category_id = c.id
@@ -23,7 +22,6 @@ $result = $stmt->get_result();
 $history = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Pobierz dane do analizy
 $queryAnalysis = "SELECT COUNT(*) as login_count, AVG(session_time) as avg_session_time
                   FROM user_sessions
                   WHERE user_id = ?";
@@ -181,7 +179,7 @@ $stmtAnalysis->close();
         <?php endif; ?>
     </div>
 
-    <!-- Sekcja wykresów -->
+
     <div class="charts">
         <h2>Wykresy wyników</h2>
         <canvas id="historyChart"></canvas>
@@ -191,9 +189,9 @@ $stmtAnalysis->close();
         const ctx = document.getElementById('historyChart').getContext('2d');
         const historyData = <?php echo json_encode($history); ?>;
 
-        // Grupowanie danych według języka i kategorii
+       
         const groupedData = historyData.reduce((acc, entry) => {
-            const date = entry.date.split(' ')[0]; // Usuwanie czasu z daty
+            const date = entry.date.split(' ')[0]; 
             const key = `${entry.language} - ${entry.category_name}`;
             if (!acc[key]) {
                 acc[key] = { dates: [], correctAnswers: [], totalQuestions: [] };
@@ -204,7 +202,7 @@ $stmtAnalysis->close();
             return acc;
         }, {});
 
-        // Kolory dla różnych kategorii
+        
         const colors = [
             'rgba(75, 192, 192, 1)',
             'rgba(153, 102, 255, 1)',
@@ -218,7 +216,7 @@ $stmtAnalysis->close();
             'rgba(150, 150, 50, 1)'
         ];
 
-        // Tworzenie zestawów danych
+        
         const datasets = Object.keys(groupedData).map((key, index) => ({
             label: key,
             data: groupedData[key].correctAnswers.map((correct, i) => (correct / groupedData[key].totalQuestions[i] * 100).toFixed(2)),

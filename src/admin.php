@@ -2,23 +2,19 @@
 session_start();
 require_once('connection.php');
 
-// Sprawdź, czy użytkownik jest zalogowany
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
     exit();
 }
 
-// Pobierz kategorie z bazy danych
 $categories = [];
 $result = mysqli_query($conn, "SELECT id, name FROM categories");
 while ($row = mysqli_fetch_assoc($result)) {
     $categories[] = $row;
 }
 
-// Sprawdź, czy wybrano kategorię
 $selected_category = isset($_GET['category_id']) ? $_GET['category_id'] : null;
 
-// Pobierz słowa według kategorii
 $words = [];
 if ($selected_category) {
     $stmt = $conn->prepare("SELECT w.id, w.word, w.translation_pl, w.translation_de, w.translation_en, w.translation_es, w.translation_fr FROM words w
@@ -36,14 +32,12 @@ if ($selected_category) {
     }
 }
 
-// Pobierz wszystkich użytkowników
 $users = [];
 $result = mysqli_query($conn, "SELECT id, login, email, is_admin FROM users");
 while ($row = mysqli_fetch_assoc($result)) {
     $users[] = $row;
 }
 
-// Dodawanie słówek
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_word'])) {
     if (!empty($_POST['word']) && !empty($_POST['translation_pl']) && !empty($_POST['translation_de']) && 
         !empty($_POST['translation_en']) && !empty($_POST['translation_es']) && !empty($_POST['translation_fr']) &&
@@ -95,7 +89,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_word'])) {
     }
 }
 
-// Usuwanie słówek
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_word'])) {
     $word_id = $_POST['word_id'];
     $query = "DELETE FROM words WHERE id = ?";
@@ -103,7 +96,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_word'])) {
     $stmt->bind_param("i", $word_id);
     if ($stmt->execute()) {
         echo "Słówko zostało usunięte pomyślnie.";
-        // Odśwież stronę po usunięciu słowa
         header("Location: admin.php");
         exit();
     } else {
@@ -111,7 +103,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_word'])) {
     }
 }
 
-// Usuwanie użytkowników
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_user'])) {
     $user_id = $_POST['user_id'];
     $query = "DELETE FROM users WHERE id = ?";
@@ -127,7 +118,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_user'])) {
     }
 }
 
-// Nadanie uprawnień administratora
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['make_admin'])) {
     $user_id = $_POST['user_id'];
     $query = "UPDATE users SET is_admin = 1 WHERE id = ?";
@@ -135,7 +125,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['make_admin'])) {
     $stmt->bind_param("i", $user_id);
     if ($stmt->execute()) {
         echo "Użytkownik został mianowany administratorem.";
-        // Odśwież stronę po zmianie statusu użytkownika
         header("Location: admin.php");
         exit();
     } else {

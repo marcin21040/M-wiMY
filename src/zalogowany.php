@@ -1,25 +1,21 @@
 <?php
 session_start();
 require_once('connection.php');
-require_once('srs_functions.php'); // Dodajemy plik z funkcjami SRS
+require_once('srs_functions.php'); 
 
-// Sprawdź czy użytkownik jest zalogowany
 if (!isset($_SESSION['login'])) {
-    // Jeśli niezalogowany, przekieruj go do strony logowania
     header("Location: login.php");
     exit();
 }
 
-$userId = $_SESSION['user_id']; // Zakładam, że id użytkownika jest przechowywane w sesji
+$userId = $_SESSION['user_id'];
 $wordsToReviewCount = countWordsForReview($userId);
-// Sprawdź, czy użytkownik ma słowa do powtórki
 $wordsToReview = getWordsDueForReview($userId);
 $hasWordsToReview = !empty($wordsToReview);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="pl">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -30,26 +26,26 @@ $hasWordsToReview = !empty($wordsToReview);
     <title>Strona Główna</title>
     <script type="module" src="main.js" defer></script>
     <link rel="stylesheet" href="dist/prod.css">
-    <style style?>  .notification {
-    background-color: #ffcc00;
-    color: #000;
-    padding: 15px;
-    margin: 20px 0;
-    border: 1px solid #ffa500;
-    border-radius: 5px;
-}
-.notification a {
-    color: #000;
-    text-decoration: underline;
-}</style>
+    <style>
+        .notification {
+            background-color: #ffcc00;
+            color: #000;
+            padding: 15px;
+            margin: 20px 0;
+            border: 1px solid #ffa500;
+            border-radius: 5px;
+        }
+        .notification a {
+            color: #000;
+            text-decoration: underline;
+        }
+    </style>
 </head>
-
 <body>
-
     <nav class="mainNav">
         <div class="mainNav__logo"><a href="zalogowany.php">MówiMY</a></div>
         <div class="mainNav__links">
-            <a href="srs_review.php" class="mainNav__link">Wyniki</a>
+            <a href="srs_review.php" class="mainNav__link">Powtórz</a>
             <a href="user_history.php" class="mainNav__link">Historia</a>
             <a href="logout.php" class="mainNav__link">Wyloguj się</a>
         </div>
@@ -101,6 +97,4 @@ $hasWordsToReview = !empty($wordsToReview);
 
     <script src="script.js"></script>
 </body>
-
 </html>
-

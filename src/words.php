@@ -1,20 +1,19 @@
 <?php
 session_start();
 require_once('connection.php');
-require_once('srs_functions.php'); // Dodaj ten wiersz, aby załadować funkcje SRS
+require_once('srs_functions.php'); 
 
-// Sprawdź, czy użytkownik jest zalogowany
+
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
     exit();
 }
 
-$userId = $_SESSION['user_id']; // Zakładam, że id użytkownika jest przechowywane w sesji
+$userId = $_SESSION['user_id'];
 
-// Pobierz język z sesji
 $language = $_SESSION['language'] ?? '';
 
-// Funkcja do pobierania słów z kategorii
+
 function getWordsByCategory($categoryId) {
     global $conn;
     $stmt = $conn->prepare(
@@ -32,23 +31,23 @@ function getWordsByCategory($categoryId) {
     return $words;
 }
 
-// Funkcja do pobierania słów po ID
+
 function getWordsByIds($ids) {
     global $conn;
-    $ids = implode(',', array_map('intval', $ids)); // Zabezpieczenie przed SQL injection
+    $ids = implode(',', array_map('intval', $ids)); 
     $query = "SELECT id, word, translation_pl, translation_de, translation_en, translation_es, translation_fr FROM words WHERE id IN ($ids)";
     $result = mysqli_query($conn, $query);
 
-    // Sprawdzenie, czy zapytanie SQL zwróciło wynik
+ 
     if (!$result) {
-        return []; // lub możesz rzucić wyjątek lub wyświetlić komunikat o błędzie
+        return []; 
     }
 
     $words = mysqli_fetch_all($result, MYSQLI_ASSOC);
     return $words;
 }
 
-// Pobierz słowa w zależności od parametrów URL
+
 $words = [];
 $categoryId = isset($_GET['category_id']) ? $_GET['category_id'] : null;
 $type = isset($_GET['type']) ? $_GET['type'] : null;
@@ -58,22 +57,22 @@ if (isset($_POST['word_ids'])) {
     $words = getWordsByIds($wordIds);
 } elseif ($categoryId !== null && $type !== null) {
     if ($type === 'flashcard') {
-        $words = getWordsByCategory($categoryId); // Pobierz wszystkie słowa z wybranej kategorii
+        $words = getWordsByCategory($categoryId); 
     } else {
         $words = getWordsByCategory($categoryId);
         
-        // Usuń powtórzenia
+        
         $words = array_unique($words, SORT_REGULAR);
         
-        // Losuj 10 słówek tylko w trybie quizu
+        
         if (count($words) > 10) {
-            shuffle($words); // Potasuj tablicę
-            $words = array_slice($words, 0, 10); // Pobierz pierwsze 10 słów
+            shuffle($words); 
+            $words = array_slice($words, 0, 10); 
         }
     }
 }
 
-// Ustal odpowiednią kolumnę tłumaczeń na podstawie wybranego języka
+
 $translationColumn = '';
 switch ($language) {
     case 'angielski':
@@ -89,7 +88,7 @@ switch ($language) {
         $translationColumn = 'translation_fr';
         break;
     default:
-        $translationColumn = 'word'; // Domyślna kolumna, jeśli język nie jest ustawiony prawidłowo
+        $translationColumn = 'word'; 
         break;
 }
 ?>
@@ -122,6 +121,7 @@ switch ($language) {
             width: 200px;
             text-align: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
         }
 
         .flashcard .original {
@@ -133,6 +133,10 @@ switch ($language) {
         .flashcard .translation {
             font-size: 16px;
             color: #555;
+        }
+
+        .hidden-translation {
+            display: none;
         }
     </style>
 </head>
@@ -164,7 +168,7 @@ switch ($language) {
             <?php if ($type === 'flashcard'): ?>
                 <div class="flashcards">
                     <?php foreach ($words as $index => $word): ?>
-                        <div class="flashcard">
+                        <div class="flashcard" id="flashcard-<?php echo $index; ?>" onclick="toggleTranslation('flashcard-<?php echo $index; ?>')">
                             <p class="original"><?php echo htmlspecialchars($word['word']); ?></p>
                             <p class="translation"><?php echo htmlspecialchars($word[$translationColumn]); ?></p>
                         </div>
@@ -191,6 +195,16 @@ switch ($language) {
 
     </div>
 </header>
+
+<script>
+    function toggleTranslation(id) {
+        var flashcard = document.getElementById(id);
+        var translation = flashcard.querySelector('.translation');
+        if (translation) {
+            translation.classList.toggle('hidden-translation');
+        }
+    }
+</script>
 
 <script src="script.js"></script>
 </body>

@@ -63,12 +63,12 @@ function getWordsDueForReview($userId) {
 
     $today = date('Y-m-d');
     $tomorrow = date('Y-m-d', strtotime('+1 day'));
-    
+
     $stmt = $conn->prepare(
         "SELECT w.id, w.word, w.translation_pl, w.translation_de, w.translation_en, w.translation_es, w.translation_fr, s.next_review, s.repetitions, s.review_interval, s.ease 
         FROM words w
         JOIN srs_words s ON w.id = s.word_id
-        WHERE s.user_id = ? AND (s.next_review <= ? OR s.next_review = ?)"
+        WHERE s.user_id = ? AND s.next_review >= ? AND s.next_review <= ?"
     );
     $stmt->bind_param("iss", $userId, $today, $tomorrow);
     $stmt->execute();
@@ -83,12 +83,14 @@ function countWordsForReview($userId) {
     global $conn;
 
     $today = date('Y-m-d');
+    $tomorrow = date('Y-m-d', strtotime('+1 day'));
+    
     $stmt = $conn->prepare(
         "SELECT COUNT(*) AS count 
         FROM srs_words 
-        WHERE user_id = ? AND next_review <= ?"
+        WHERE user_id = ? AND next_review >= ? AND next_review <= ?"
     );
-    $stmt->bind_param("is", $userId, $today);
+    $stmt->bind_param("iss", $userId, $today, $tomorrow);
     $stmt->execute();
     $stmt->bind_result($count);
     $stmt->fetch();

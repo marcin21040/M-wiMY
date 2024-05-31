@@ -1,27 +1,23 @@
 <?php
 session_start();
 require_once('connection.php');
-require_once('srs_functions.php'); // Dodaj ten wiersz, aby załadować funkcje SRS
+require_once('srs_functions.php'); 
 
-// Sprawdź, czy użytkownik jest zalogowany
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
     exit();
 }
 
-$userId = $_SESSION['user_id']; // Zakładam, że id użytkownika jest przechowywane w sesji
+$userId = $_SESSION['user_id']; 
 $categoryId = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
 $type = isset($_GET['type']) ? $_GET['type'] : null;
 
-// Sprawdź poprawność category_id
 if ($categoryId === null || $categoryId <= 0) {
     die("Nieprawidłowy category_id.");
 }
 
-// Pobierz język z sesji
 $language = $_SESSION['language'] ?? '';
 
-// Ustal odpowiednią kolumnę tłumaczeń na podstawie wybranego języka
 $translationColumn = '';
 switch ($language) {
     case 'angielski':
@@ -44,23 +40,22 @@ $correctAnswers = 0;
 $totalQuestions = count($_POST['questions']);
 $incorrectAnswers = [];
 
-$_SESSION['user_answers'] = []; // Przechowuj odpowiedzi użytkownika
-$_SESSION['correct_answers_list'] = []; // Przechowuj poprawne odpowiedzi
+$_SESSION['user_answers'] = []; 
+$_SESSION['correct_answers_list'] = []; 
 
 foreach ($_POST['questions'] as $index => $question) {
     $questionId = $question['id'];
-    $correctAnswer = $question['translation']; // Korzystamy z dynamicznej kolumny translation
+    $correctAnswer = $question['translation']; 
     $userAnswer = $_POST['answers'][$index]['translation'];
 
-    $_SESSION['user_answers'][$questionId] = $userAnswer; // Przechowuj odpowiedź użytkownika
-    $_SESSION['correct_answers_list'][$questionId] = $correctAnswer; // Przechowuj poprawną odpowiedź
+    $_SESSION['user_answers'][$questionId] = $userAnswer;
+    $_SESSION['correct_answers_list'][$questionId] = $correctAnswer;
     
-    // Debugowanie odpowiedzi
     error_log("Sprawdzanie pytania ID: $questionId, Poprawna odpowiedź: $correctAnswer, Odpowiedź użytkownika: $userAnswer");
 
     if (strtolower(trim($correctAnswer)) === strtolower(trim($userAnswer))) {
         $correctAnswers++;
-        $grade = 5; // Ocena 5 dla poprawnych odpowiedzi
+        $grade = 5; 
     } else {
         $incorrectAnswers[] = [
             'id' => $questionId,
@@ -68,40 +63,35 @@ foreach ($_POST['questions'] as $index => $question) {
             'correct' => $correctAnswer,
             'user' => $userAnswer
         ];
-        $grade = 1; // Ocena 1 dla niepoprawnych odpowiedzi
+        $grade = 1; 
     }
 
-    // Zaktualizuj lub dodaj słowo do tabeli SRS
     $stmt = $conn->prepare("SELECT * FROM srs_words WHERE user_id = ? AND word_id = ?");
     $stmt->bind_param("ii", $userId, $questionId);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        updateSRS($userId, $questionId, $grade); // Zaktualizuj istniejące słowo
+        updateSRS($userId, $questionId, $grade); 
     } else {
-        // Dodaj nowe słowo
         $nextReview = date('Y-m-d', strtotime("+1 day"));
         $stmt = $conn->prepare("INSERT INTO srs_words (user_id, word_id, next_review, repetitions, review_interval, ease) VALUES (?, ?, ?, 0, 1, 2.5)");
         $stmt->bind_param("iis", $userId, $questionId, $nextReview);
         $stmt->execute();
-        updateSRS($userId, $questionId, $grade); // Zaktualizuj nowe słowo
+        updateSRS($userId, $questionId, $grade);
     }
 
     $stmt->close();
 }
 
-// Zapisz wynik do tabeli user_history
 $stmt = $conn->prepare("INSERT INTO user_history (user_id, category_id, type, correct_answers, total_questions, language) VALUES (?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("iisiis", $userId, $categoryId, $type, $correctAnswers, $totalQuestions, $language);
 $stmt->execute();
 $stmt->close();
 
-// Przechowaj dane w sesji
 $_SESSION['correct_answers'] = $correctAnswers;
 $_SESSION['wrong_answers'] = $totalQuestions - $correctAnswers;
 
-// Serializujemy błędne odpowiedzi, aby przekazać je przez URL
 $incorrectIds = array_column($incorrectAnswers, 'id');
 $incorrectIdsSerialized = urlencode(serialize($incorrectIds));
 

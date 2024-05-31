@@ -28,7 +28,6 @@ if (isset($_GET['language'])) {
     }
     exit();
 } else {
-    // Jeśli parametr 'language' nie jest ustawiony, przekieruj użytkownika z powrotem na stronę zalogowanego
     header("Location: zalogowany.php");
     exit();
 }
