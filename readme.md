@@ -9,7 +9,7 @@ Aby uruchomić ten projekt, musisz mieć zainstalowane następujące narzędzia:
 
 ### Uruchamianie projektu
 
-1. Sklonuj lub pobierz repozytorium projektu.
+1. Sklonuj lub pobierz repozytorium projektu. (Projekt mozna uruchomić w Xampp wrzucić do folderu htdocs oraz umieścić baze danych z rezpozytorium) 
 2. Przejdź do katalogu projektu w terminalu.
 3. Zainstaluj zależności projektu, uruchamiając `npm install`.
 4. Uruchom serwer rozwojowy, uruchamiając `npm run dev`.
@@ -18,3 +18,6 @@ Aby uruchomić ten projekt, musisz mieć zainstalowane następujące narzędzia:
 ### Budowanie projektu
 
 Aby skompilować projekt do wersji produkcyjnej, uruchom `npm run build`. Skompresowana wersja CSS zostanie wygenerowana w katalogu `dist`.
+
+### Konto Administratora
+login:admin hasło:admin
