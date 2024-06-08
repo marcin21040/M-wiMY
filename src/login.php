@@ -74,9 +74,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <nav class="mainNav">
         <div class="mainNav__logo"><a href="intro.php">MówiMY</a></div>
         <div class="mainNav__links">
-            <a href="" class="mainNav__link">Zacznij naukę</a>
-            <a href="" class="mainNav__link">O nas</a>
-            <a href="" class="mainNav__link">Kontakt</a>
             <?php
             
             if (isset($_SESSION['login'])) {
